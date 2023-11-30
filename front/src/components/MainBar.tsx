@@ -1,5 +1,5 @@
-import {useNavigate} from 'react-router-dom';
-import React, { useEffect, useState } from 'react';
+// import {useNavigate} from 'react-router-dom';
+import  { useEffect} from 'react';
 import Button from '@mui/material/Button';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -12,9 +12,10 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 const pages = ['MarketPlace', 'Factory'];
 
 function MainBar() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const handleCloseNavMenu = (key: string) => {
+    console.log("Redirect to page: ",key);
     // if(key == "MarketPlace"){
     //   navigate("/sub-wallet/SendTransaction");
     // }
