@@ -1,30 +1,28 @@
 // import {useNavigate} from 'react-router-dom';
 import  { useEffect} from 'react';
+import { useNavigate } from 'react-router';
 import Button from '@mui/material/Button';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
-import Logo from '/logo.svg';
+import Logo from '/Logo.svg';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 
 const pages = ['MarketPlace', 'Factory'];
 
 function MainBar() {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleCloseNavMenu = (key: string) => {
     console.log("Redirect to page: ",key);
-    // if(key == "MarketPlace"){
-    //   navigate("/sub-wallet/SendTransaction");
-    // }
-    // else if(key == "Transactions"){
-    //   navigate("/sub-wallet/Transactions");
-    // }
-    // else if(key == "Sessions"){
-    //   navigate("/sub-wallet/Sessions");
-    // }
+    if(key == "MarketPlace"){
+      navigate("/real-token/Explore");
+    }
+    else if(key == "Transactions"){
+      navigate("/sub-wallet/Transactions");
+    }
   };
 
   useEffect(() => {
