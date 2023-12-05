@@ -151,6 +151,14 @@ contract FractionalizedNFT is
         emit AmountApproved(tokenId, operator, amount);
     }
 
+    function removeApproval(address operator, uint256 tokenId) external {
+        require(ownership[tokenId][msg.sender] > 0, "Invalid ownership amount");
+        uint256 currentAllowance = allowance(tokenId, operator);
+        require(currentAllowance > 0, "Insufficient operator allowance");
+
+        spendAllowance(operator, tokenId, currentAllowance);
+    }
+
     function transferFrom(
         address from,
         address to,
@@ -179,9 +187,10 @@ contract FractionalizedNFT is
     }
 
     // Function to get a token's amount of ownership for an account
+    // Must be equal to balanceOf(account, tokenId)
     function getOwnershipAmount(
-        uint256 tokenId,
-        address account
+        address account,
+        uint256 tokenId
     ) external view returns (uint256) {
         return ownership[tokenId][account];
     }
