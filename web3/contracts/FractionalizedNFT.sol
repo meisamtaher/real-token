@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+
 // import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 contract FractionalizedNFT is
@@ -46,10 +47,11 @@ contract FractionalizedNFT is
     constructor(
         address defaultAdmin,
         address pauser,
-        address minter
+        address minter,
+        string memory uri
     )
-        // ,string memory uri
-        ERC1155("https://meisamtaher.github.io/real-token/")
+        /*ERC1155("https://meisamtaher.github.io/real-token/")*/
+        ERC1155(uri)
     {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, pauser);
