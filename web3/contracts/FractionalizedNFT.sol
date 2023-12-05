@@ -14,6 +14,11 @@ contract FractionalizedNFT is
     ERC1155Pausable,
     ERC1155Burnable
 {
+    struct ApproveData {
+        address[] approvals;
+        mapping(address => uint256) allowances;
+    }
+
     bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -30,11 +35,16 @@ contract FractionalizedNFT is
     // Owner address ot owned tokens
     mapping(address => uint256[]) public ownedTokens;
 
+    mapping(uint256 => ApproveData) private approvedAmounts;
+
     // Event emitted when a new token is minted
     event TokenMinted(uint256 tokenId, uint256 amount, address owner);
 
     // Event emitted when an owner removed from token owners list
     event OwnershipRemoved(uint256 tokenId, address account);
+
+    // Event emitted when an approval is setted
+    event AmountApproved(uint256 tokenId, address operator, uint256 amount);
 
     // Event emitted when ownership is transferred
     event OwnershipTransferred(
@@ -89,20 +99,21 @@ contract FractionalizedNFT is
     }
 
     // Function to transfer ownership of a token
-    function transferOwnership(
+    function transfer(
         address from,
         address to,
         uint256 tokenId,
         uint256 amount,
         bytes memory data
-    ) external {
+    ) public {
         require(
             ownership[tokenId][from] >= amount,
             "Insufficient ownership balance"
         );
+
         ownership[tokenId][from] -= amount;
         // _transfer(from, to, tokenId, amount);
-        safeTransferFrom(from, to, tokenId, amount, data);
+        super.safeTransferFrom(from, to, tokenId, amount, data);
 
         ownership[tokenId][to] += amount;
 
@@ -115,6 +126,51 @@ contract FractionalizedNFT is
         }
 
         emit OwnershipTransferred(tokenId, from, to, amount);
+    }
+
+    function approve(
+        uint256 tokenId,
+        address operator,
+        uint256 amount
+    ) external {
+        require(
+            ownership[tokenId][msg.sender] >= amount,
+            "Insufficient allowance"
+        );
+        require(msg.sender != operator, "Approval to current owner");
+
+        // approveAmounts(tokenId, operator, amount);
+        if (amount == totalAmount[tokenId]) {
+            setApprovalForAll(operator, true);
+        }
+
+        ApproveData storage approveData = approvedAmounts[tokenId];
+        approveData.approvals.push(operator);
+        approveData.allowances[operator] = amount;
+
+        emit AmountApproved(tokenId, operator, amount);
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        bytes memory data
+    ) external {
+        uint256 currentAllowance = allowance(tokenId, msg.sender);
+        require(currentAllowance >= amount, "Insufficient allowance");
+        spendAllowance(msg.sender, tokenId, amount);
+
+        // Do transfer
+        transfer(from, to, tokenId, amount, data);
+    }
+
+    function allowance(
+        uint256 tokenId,
+        address operator
+    ) public view returns (uint256) {
+        return approvedAmounts[tokenId].allowances[operator];
     }
 
     // Function to get total amount of a token
@@ -161,6 +217,17 @@ contract FractionalizedNFT is
 
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
+    }
+
+    function spendAllowance(
+        address operator,
+        uint256 tokenId,
+        uint256 amount
+    ) internal {
+        uint256 currentAllowance = allowance(tokenId, operator);
+        require(currentAllowance >= amount, "Insufficient allowance");
+
+        approvedAmounts[tokenId].allowances[operator] -= amount;
     }
 
     // Function to remove an account from token owners list and remove the token from its owned tokens list
