@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
-
 // import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 contract FractionalizedNFT is
@@ -77,7 +76,7 @@ contract FractionalizedNFT is
         uint256[] memory tokenIds,
         uint256[] memory amounts,
         bytes memory data
-    ) public onlyRole(MINTER_ROLE) {
+    ) external onlyRole(MINTER_ROLE) {
         _mintBatch(account, tokenIds, amounts, data);
         for (uint i; i < tokenIds.length; i++) {
             totalAmount[tokenIds[i]] = amounts[i];
@@ -117,7 +116,7 @@ contract FractionalizedNFT is
     }
 
     // Function to get total amount of a token
-    function getTotalAmount(uint256 tokenId) public view returns (uint256) {
+    function getTotalAmount(uint256 tokenId) external view returns (uint256) {
         return totalAmount[tokenId];
     }
 
@@ -194,7 +193,6 @@ contract FractionalizedNFT is
     }
 
     // The following functions are overrides required by Solidity.
-
     function _update(
         address from,
         address to,
