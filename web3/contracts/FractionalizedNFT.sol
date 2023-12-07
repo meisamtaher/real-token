@@ -24,7 +24,10 @@ contract FractionalizedNFT is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // Token ID to total amount mapping
-    mapping(uint256 => uint256) private totalAmount;
+    // mapping(uint256 => uint256) private totalAmount;
+
+    // Token ID to total amount mapping
+    uint256 public constant MAX_TOKEN_AMOUNT = 10000;
 
     // Token ID to percentage ownership mapping
     mapping(uint256 => mapping(address => uint256)) public ownership;
@@ -38,16 +41,20 @@ contract FractionalizedNFT is
     mapping(uint256 => ApproveData) private approvedAmounts;
 
     // Event emitted when a new token is minted
-    event TokenMinted(uint256 tokenId, uint256 amount, address owner);
+    event TokenMinted(uint256 indexed tokenId, address account);
 
     // Event emitted when an owner removed from token owners list
-    event OwnershipRemoved(uint256 tokenId, address account);
+    event OwnershipRemoved(uint256 indexed tokenId, address account);
 
     // Event emitted when an approval is setted
-    event AmountApproved(uint256 tokenId, address operator, uint256 amount);
+    event AmountApproved(
+        uint256 indexed tokenId,
+        address indexed operator,
+        uint256 amount
+    );
 
     // Event emitted when ownership is transferred
-    event OwnershipTransferred(
+    event AmountTransferred(
         uint256 tokenId,
         address from,
         address to,
@@ -56,42 +63,55 @@ contract FractionalizedNFT is
 
     constructor(
         address defaultAdmin,
-        address pauser,
-        address minter,
+        // address pauser,
+        // address minter,
         string memory uri
     )
         /*ERC1155("https://meisamtaher.github.io/real-token/")*/
         ERC1155(uri)
     {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
-        _grantRole(PAUSER_ROLE, pauser);
-        _grantRole(MINTER_ROLE, minter);
+        _grantRole(PAUSER_ROLE, defaultAdmin);
+        _grantRole(MINTER_ROLE, defaultAdmin); 
     }
 
     // Function to mint a new token with a specific amount as totalAmount
     function mint(
         address account,
-        uint256 tokenId,
-        uint256 amount,
+        // uint256 tokenId,
+        // uint256 amount,
         bytes memory data
     ) external onlyRole(MINTER_ROLE) {
-        _mint(account, tokenId, amount, data);
-        totalAmount[tokenId] = amount;
-        ownership[tokenId][account] = amount;
+        uint256 tokenId = uint256(
+            keccak256(abi.encodePacked(account, data, block.timestamp))
+        );
+
+        _mint(account, tokenId, MAX_TOKEN_AMOUNT, data);
+        // totalAmount[tokenId] = amount;
+        ownership[tokenId][account] = MAX_TOKEN_AMOUNT;
         owners[tokenId].push(account);
         ownedTokens[account].push(tokenId);
-        emit TokenMinted(tokenId, amount, account);
+        emit TokenMinted(tokenId, account);
     }
 
     function mintBatch(
         address account,
-        uint256[] memory tokenIds,
-        uint256[] memory amounts,
+        uint8 count,
+        // uint256[] memory tokenIds,
+        // uint256[] memory amounts,
         bytes memory data
     ) external onlyRole(MINTER_ROLE) {
+        uint256[] memory tokenIds = new uint256[](count);
+        uint256[] memory amounts = new uint256[](count);
+        for (uint8 i; i < count; i++) {
+            tokenIds[i] = uint256(
+                keccak256(abi.encodePacked(account, data, block.timestamp, i))
+            );
+            amounts[i] = MAX_TOKEN_AMOUNT;
+        }
         _mintBatch(account, tokenIds, amounts, data);
         for (uint i; i < tokenIds.length; i++) {
-            totalAmount[tokenIds[i]] = amounts[i];
+            // totalAmount[tokenIds[i]] = amounts[i];
             ownership[tokenIds[i]][account] = amounts[i];
             ownedTokens[account].push(tokenIds[i]);
             owners[tokenIds[i]].push(account);
@@ -125,7 +145,7 @@ contract FractionalizedNFT is
             removeOwner(tokenId, from);
         }
 
-        emit OwnershipTransferred(tokenId, from, to, amount);
+        emit AmountTransferred(tokenId, from, to, amount);
     }
 
     function approve(
@@ -140,19 +160,24 @@ contract FractionalizedNFT is
         require(msg.sender != operator, "Approval to current owner");
 
         // approveAmounts(tokenId, operator, amount);
-        if (amount == totalAmount[tokenId]) {
+        if (amount == MAX_TOKEN_AMOUNT) {
             setApprovalForAll(operator, true);
         }
 
         ApproveData storage approveData = approvedAmounts[tokenId];
-        approveData.approvals.push(operator);
+        // If have any allowance before
+        if (approveData.allowances[operator] == 0) {
+            approveData.approvals.push(operator);
+        }
         approveData.allowances[operator] = amount;
-
         emit AmountApproved(tokenId, operator, amount);
     }
 
     function removeApproval(address operator, uint256 tokenId) external {
-        require(ownership[tokenId][msg.sender] > 0, "Invalid ownership amount");
+        require(
+            ownership[tokenId][msg.sender] > 0,
+            "Invalid ownership amount to remove approval"
+        );
         uint256 currentAllowance = allowance(tokenId, operator);
         require(currentAllowance > 0, "Insufficient operator allowance");
 
@@ -170,7 +195,7 @@ contract FractionalizedNFT is
         require(currentAllowance >= amount, "Insufficient allowance");
         spendAllowance(msg.sender, tokenId, amount);
 
-        // Do transfer
+        // Call transfer fuction of this contract
         transfer(from, to, tokenId, amount, data);
     }
 
@@ -179,11 +204,6 @@ contract FractionalizedNFT is
         address operator
     ) public view returns (uint256) {
         return approvedAmounts[tokenId].allowances[operator];
-    }
-
-    // Function to get total amount of a token
-    function getTotalAmount(uint256 tokenId) external view returns (uint256) {
-        return totalAmount[tokenId];
     }
 
     // Function to get a token's amount of ownership for an account
@@ -204,10 +224,10 @@ contract FractionalizedNFT is
 
     // Function to get ownership percentage of an account for a token
     function getOwnershipPercentage(
-        uint256 tokenId,
-        address account
+        address account,
+        uint256 tokenId
     ) external view returns (uint256) {
-        return (ownership[tokenId][account] * 100) / totalAmount[tokenId];
+        return (ownership[tokenId][account] * 100) / MAX_TOKEN_AMOUNT;
     }
 
     function getOwnedTokens(

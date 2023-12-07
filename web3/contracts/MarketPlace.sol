@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Matic} from "./Mocks/Matic.sol";
 import {FractionalizedNFT} from "./FractionalizedNFT.sol";
 
-contract Marketplace is Ownable, ReentrancyGuard {
+contract MarketPlace is Ownable, ReentrancyGuard {
 
     FractionalizedNFT fractionalizedNFT;
     Matic matic;
@@ -23,11 +23,13 @@ contract Marketplace is Ownable, ReentrancyGuard {
     // Mapping from token ID to listed tokens
     mapping(uint256 => ListedToken) public listedTokens;
 
+    event TokenListed(uint256 indexed tokenId,address indexed seller, uint256 amount, uint256 price);
+
     // Event emitted when a token is removed from sale
-    event TokenRemovedFromSale(uint256 tokenId);
+    event TokenRemovedFromSale(uint256 indexed tokenId);
 
     // Event emitted when the ownership of a token is transferred after a purchase
-    event TokenOwnershipTransferred(uint256 tokenId, address from, address to, uint256 amount);
+    event TokenSold(uint256 indexed tokenId, address indexed from, address indexed to, uint256 amount);
 
     // Modifier to ensure that only the seller can perform certain actions
     modifier onlySeller(uint256 tokenId) {
@@ -41,7 +43,7 @@ contract Marketplace is Ownable, ReentrancyGuard {
     }
 
     // Function to list a token for sale
-    function listTokenForSale(uint256 tokenId, uint256 amount, uint256 price) external {
+    function listTokenForSale(uint256 tokenId, uint256 amount, uint256 price) nonReentrant external {
         require(amount > 0, "Amount must be greater than zero");
         require(price > 0, "Price must be greater than zero");
 
@@ -57,10 +59,12 @@ contract Marketplace is Ownable, ReentrancyGuard {
             amount: amount,
             price: price
         });
+
+        emit TokenListed(tokenId, msg.sender, amount, price);
     }
 
     // Function to remove a token from sale
-    function removeTokenFromSale(uint256 tokenId) external onlySeller(tokenId) nonReentrant {
+    function removeTokenFromSale(uint256 tokenId) nonReentrant external onlySeller(tokenId){
         delete listedTokens[tokenId];
 
         // Remove the approval
@@ -71,7 +75,7 @@ contract Marketplace is Ownable, ReentrancyGuard {
 
     // Function to buy a token
     function buyToken(uint256 tokenId, uint256 amount,         bytes memory data
-) external nonReentrant {
+)  nonReentrant external{
         require(amount > 0, "Amount must be greater than zero");
 
         ListedToken storage listedToken = listedTokens[tokenId];
@@ -80,7 +84,7 @@ contract Marketplace is Ownable, ReentrancyGuard {
         require(matic.balanceOf(msg.sender) >= totalPrice, "Insufficient buyer balance");
 
         // Transfer funds to the seller
-        matic.transfer(listedToken.seller, totalPrice);
+        require(matic.transfer(listedToken.seller, totalPrice), "Token transfer failed");
 
         // Transfer token ownership
         fractionalizedNFT.transferFrom(listedToken.seller, msg.sender, tokenId, amount, data);
@@ -88,7 +92,7 @@ contract Marketplace is Ownable, ReentrancyGuard {
         // Update the listed token
         listedToken.amount -= amount;
 
-        emit TokenOwnershipTransferred(tokenId, listedToken.seller, msg.sender, amount);
+        emit TokenSold(tokenId, listedToken.seller, msg.sender, amount);
 
         // Remove the token from sale if the seller has no remaining tokens
         if (listedToken.amount == 0) {
