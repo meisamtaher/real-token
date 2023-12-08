@@ -18,7 +18,11 @@ function Profile() {
     const myContract =  new ethers.Contract(FractionalizeNFTContractAddress, contractABI, provider);
     try {
     const tokens = await myContract.getOwnedTokens(account.address);
+    const balance = await myContract.balanceOf(account.address,tokens[0]);
+    const balance2 = await myContract.getOwnershipAmount(account.address,tokens[0]);
     console.log("List of all tokens:",tokens)
+    console.log("Balance of user in first token:", balance);
+    console.log("Balance2 of user in first token:", balance2);
     } catch (error) {
       console.error("Error fetching tokens: ", error);
     }

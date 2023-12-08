@@ -29,8 +29,8 @@ function MainBar() {
     if(key == "MarketPlace"){
       navigate("/real-token/Explore");
     }
-    else if(key == "Transactions"){
-      navigate("/sub-wallet/Transactions");
+    else if(key == "Factory"){
+      navigate("/real-token/Mint");
     }
   };
 
