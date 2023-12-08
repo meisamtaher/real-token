@@ -3,10 +3,30 @@ import  { useEffect,useState} from 'react';
 import { useNavigate } from 'react-router';
 import NFTCard from '../components/NFTCard';
 import { Grid } from '@mui/material';
+import { publicProvider } from 'wagmi/providers/public'
+import { usePublicClient,useWalletClient } from 'wagmi';
+import MarketPlaceContractAddress from '../constants/constants';
+import ethers from 'ethers'
+ 
 import { ListedNFT } from '../interfaces/types';
 
 function Explore() {
   const navigate = useNavigate();
+  const { data: signer } = useWalletClient();
+  const getPastEvents = async () => {
+    const provider = new ethers.JsonRpcProvider("")
+    const myContract =  new ethers.Contract(MarketPlaceContractAddress, contractABI, provider);
+    const eventName = 'TokenListed'; 
+    const filter = myContract.filters[eventName]();
+
+    try {
+      const logs = await provider.getLogs(filter);
+      const parsedLogs = logs.map(log => myContract.interface.parseLog(log));
+      console.log(parsedLogs)
+    } catch (error) {
+      console.error("Error fetching events: ", error);
+    }
+  };
   const handleNFTClick = (key: string) => {
     console.log("Clicked on NFT with Address", key);
     navigate("/real-token/Explore/"+key);

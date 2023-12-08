@@ -45,7 +45,7 @@ function MainBar() {
             ))}
           </Box>
           <Box sx={{ flexGrow: 0 }}>
-            <ConnectButton />
+            <ConnectButton  chainStatus="none" accountStatus={{smallScreen: 'avatar',largeScreen: 'full',}}/>
           </Box>
         </Toolbar>
       </Container>
