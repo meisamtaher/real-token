@@ -1,3 +1,2 @@
-const MarketPlaceContractAddress ="0x3f44a9C092222779feECA72B3dEcC36133F3Eb18";
-
-export default MarketPlaceContractAddress;
+export const MarketPlaceContractAddress ="0x3f44a9C092222779feECA72B3dEcC36133F3Eb18";
+export const FractionalizeNFTContractAddress = "0x4b3C572d006882148E165582D00505Bb8A42F4BF";

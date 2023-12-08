@@ -5,8 +5,9 @@ import NFTCard from '../components/NFTCard';
 import { Grid } from '@mui/material';
 import { publicProvider } from 'wagmi/providers/public'
 import { usePublicClient,useWalletClient } from 'wagmi';
-import MarketPlaceContractAddress from '../constants/constants';
-import ethers from 'ethers'
+import MarketPlace from '../constants/MarketPlace.json';
+import {MarketPlaceContractAddress} from '../constants/constants';
+import {ethers} from 'ethers'
  
 import { ListedNFT } from '../interfaces/types';
 
@@ -14,14 +15,27 @@ function Explore() {
   const navigate = useNavigate();
   const { data: signer } = useWalletClient();
   const getPastEvents = async () => {
-    const provider = new ethers.JsonRpcProvider("")
+    const provider = new ethers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/BmepUpwxd86PJSuisn7P4f3lZJSqcAUt")
+    const contractABI = MarketPlace.abi;
     const myContract =  new ethers.Contract(MarketPlaceContractAddress, contractABI, provider);
     const eventName = 'TokenListed'; 
-    const filter = myContract.filters[eventName]();
-
+    // const filter = myContract.filters[eventName]();
+    const filter = {
+      address: MarketPlaceContractAddress,
+      fromBlock: 0,
+      toBlock: 'latest',
+      topics: [ethers.id(`${eventName}(uint256,address,uint256,uint256)`)] // Replace `argTypes` with actual event argument types
+    };
     try {
       const logs = await provider.getLogs(filter);
-      const parsedLogs = logs.map(log => myContract.interface.parseLog(log));
+      const parsedLogs = logs.map((log) => {
+        const mutableTopics = [...log.topics]; // Create a mutable copy of the topics array
+        const parseableLog = {
+          ...log,
+          topics: mutableTopics,
+        };
+        return myContract.interface.parseLog(parseableLog);
+      });
       console.log(parsedLogs)
     } catch (error) {
       console.error("Error fetching events: ", error);
@@ -34,6 +48,7 @@ function Explore() {
   const [NFTs, setNFTs] = useState<ListedNFT[] | undefined>();
   const getListedNFTs = async() =>{
     console.log("Trying to fetch all Listed NFTs... ");
+    getPastEvents();
     setNFTs([
         {
             name:"Modern Carpet 25",

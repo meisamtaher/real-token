@@ -8,13 +8,22 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Logo from '/Logo.svg';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Avatar } from '@mui/material';
+import { useAccount, useWalletClient } from 'wagmi';
+import { Stack } from '@mui/system';
+import { sign } from 'crypto';
 
 
 const pages = ['MarketPlace', 'Factory'];
 
 function MainBar() {
   const navigate = useNavigate();
-
+  const signer = useWalletClient();
+  const account = useAccount();
+  const goToProfile = ()=>{
+    if(account.isConnected)
+      navigate("/real-token/Profile/"+account.address);
+  }
   const handleCloseNavMenu = (key: string) => {
     console.log("Redirect to page: ",key);
     if(key == "MarketPlace"){
@@ -44,9 +53,12 @@ function MainBar() {
               </Button>
             ))}
           </Box>
-          <Box sx={{ flexGrow: 0 }}>
-            <ConnectButton  chainStatus="none" accountStatus={{smallScreen: 'avatar',largeScreen: 'full',}}/>
-          </Box>
+          <Stack sx={{ flexGrow: 0 }} direction={'row'}>
+            <ConnectButton  chainStatus="none" accountStatus={{smallScreen:'avatar',largeScreen: 'address',}}/>
+            {account.isConnected &&<div onClick={goToProfile}>
+              <Avatar />
+            </div>}
+          </Stack>
         </Toolbar>
       </Container>
     </AppBar>
