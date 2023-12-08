@@ -3,23 +3,16 @@ import Button from '@mui/material/Button';
 import { Grid } from '@mui/material';
 import ImageUploadToIPFS from '../components/FileUpload';
 import { useAccount,usePrepareContractWrite } from 'wagmi';
-import { FReserverContractAddress } from '../constants/constants';
-
+import { FReserverContractAddress, FractionalizeNFTContractAddress } from '../constants/constants';
+import FReserver from "../constants/Reserver.json";
+import FNFT from "../constants/Reserver.json";
 
 
 function Mint() {
   const account = useAccount();
   const { configReserver } = usePrepareContractWrite({
     address: FReserverContractAddress,
-    abi: [
-      {
-        name: 'mint',
-        type: 'function',
-        stateMutability: 'nonpayable',
-        inputs: [],
-        outputs: [],
-      },
-    ],
+    abi: FReserver.abi,
     functionName: 'mint',
   })
   return (
