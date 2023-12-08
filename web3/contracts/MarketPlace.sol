@@ -51,7 +51,7 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         require(isFractionalized(tokenId), "Token must be fractionalized");
         require(fractionalizedNFT.getOwnershipAmount(msg.sender, tokenId) >= amount, "Insufficient ownership");
         // Approve the marketplace contract to transfer the tokens
-        fractionalizedNFT.approve(tokenId, address(this), amount);
+        // fractionalizedNFT.approve(tokenId, address(this), amount);
 
         listedTokens[tokenId] = ListedToken({
             seller: msg.sender,
@@ -68,7 +68,7 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         delete listedTokens[tokenId];
 
         // Remove the approval
-        fractionalizedNFT.removeApproval(address(this), tokenId);
+        // fractionalizedNFT.removeApproval(address(this), tokenId);
 
         emit TokenRemovedFromSale(tokenId);
     }
@@ -84,7 +84,7 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         require(matic.balanceOf(msg.sender) >= totalPrice, "Insufficient buyer balance");
 
         // Transfer funds to the seller
-        require(matic.transfer(listedToken.seller, totalPrice), "Token transfer failed");
+        require(matic.transferFrom(msg.sender, listedToken.seller, totalPrice), "Token transfer failed");
 
         // Transfer token ownership
         fractionalizedNFT.transferFrom(listedToken.seller, msg.sender, tokenId, amount, data);

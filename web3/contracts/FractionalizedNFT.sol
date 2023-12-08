@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
+import {Reserver} from "./Reserver.sol";
 
 // import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
@@ -24,11 +25,11 @@ contract FractionalizedNFT is
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     // Token ID to total amount mapping
-    // mapping(uint256 => uint256) private totalAmount;
-
-    // Token ID to total amount mapping
     uint256 public constant MAX_TOKEN_AMOUNT = 10000;
 
+    // Reserver contract address
+    Reserver public reserver;
+ 
     // Token ID to percentage ownership mapping
     mapping(uint256 => mapping(address => uint256)) public ownership;
 
@@ -63,6 +64,7 @@ contract FractionalizedNFT is
 
     constructor(
         address defaultAdmin,
+        address _reserver,
         // address pauser,
         // address minter,
         string memory uri
@@ -73,18 +75,31 @@ contract FractionalizedNFT is
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, defaultAdmin);
         _grantRole(MINTER_ROLE, defaultAdmin); 
+        _grantRole(URI_SETTER_ROLE, defaultAdmin); 
+
+        reserver = Reserver(_reserver);
+    }
+
+
+    function setReserver(address _reserver) external onlyRole(DEFAULT_ADMIN_ROLE){
+        reserver = Reserver(_reserver);
     }
 
     // Function to mint a new token with a specific amount as totalAmount
     function mint(
         address account,
-        // uint256 tokenId,
-        // uint256 amount,
+        uint256 tokenId,
+        bool reservable,
         bytes memory data
     ) external onlyRole(MINTER_ROLE) {
-        uint256 tokenId = uint256(
-            keccak256(abi.encodePacked(account, data, block.timestamp))
-        );
+
+        if(reservable){
+            require(reserver.isReserved(tokenId), "Asset is not reserved yet");
+        }
+
+        // uint256 tokenId = uint256(
+        //     keccak256(abi.encodePacked(account, data, block.timestamp))
+        // );
 
         _mint(account, tokenId, MAX_TOKEN_AMOUNT, data);
         // totalAmount[tokenId] = amount;
@@ -97,16 +112,15 @@ contract FractionalizedNFT is
     function mintBatch(
         address account,
         uint8 count,
-        // uint256[] memory tokenIds,
-        // uint256[] memory amounts,
+        uint256[] memory tokenIds,
         bytes memory data
     ) external onlyRole(MINTER_ROLE) {
-        uint256[] memory tokenIds = new uint256[](count);
+        // uint256[] memory tokenIds = new uint256[](count);
         uint256[] memory amounts = new uint256[](count);
         for (uint8 i; i < count; i++) {
-            tokenIds[i] = uint256(
-                keccak256(abi.encodePacked(account, data, block.timestamp, i))
-            );
+            // tokenIds[i] = uint256(
+            //     keccak256(abi.encodePacked(account, data, block.timestamp, i))
+            // );
             amounts[i] = MAX_TOKEN_AMOUNT;
         }
         _mintBatch(account, tokenIds, amounts, data);
@@ -115,6 +129,7 @@ contract FractionalizedNFT is
             ownership[tokenIds[i]][account] = amounts[i];
             ownedTokens[account].push(tokenIds[i]);
             owners[tokenIds[i]].push(account);
+            emit TokenMinted(tokenIds[i], account);
         }
     }
 
@@ -160,10 +175,10 @@ contract FractionalizedNFT is
         require(msg.sender != operator, "Approval to current owner");
 
         // approveAmounts(tokenId, operator, amount);
-        if (amount == MAX_TOKEN_AMOUNT) {
+        // if (amount == MAX_TOKEN_AMOUNT) {
             setApprovalForAll(operator, true);
-        }
-
+        // }
+ 
         ApproveData storage approveData = approvedAmounts[tokenId];
         // If have any allowance before
         if (approveData.allowances[operator] == 0) {
@@ -180,8 +195,9 @@ contract FractionalizedNFT is
         );
         uint256 currentAllowance = allowance(tokenId, operator);
         require(currentAllowance > 0, "Insufficient operator allowance");
-
         spendAllowance(operator, tokenId, currentAllowance);
+
+        setApprovalForAll(operator, false);
     }
 
     function transferFrom(
