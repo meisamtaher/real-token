@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -7,11 +7,19 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Matic} from "./Mocks/Matic.sol";
 import {FractionalizedNFT} from "./FractionalizedNFT.sol";
 
+/**
+ * @title MarketPlace
+ * @dev A marketplace contract for buying and selling fractionalized NFTs.
+ */
 contract MarketPlace is Ownable, ReentrancyGuard {
+    // Address of the FractionalizedNFT contract.
     FractionalizedNFT fractionalizedNFT;
+        // Address of the Matic contract.
     Matic matic;
 
-    // Struct representing a listed token
+    /**
+     * @dev Struct representing a listed token.
+     */    
     struct ListedToken {
         address seller;
         uint256 tokenId;
@@ -46,6 +54,11 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         _;
     }
 
+    /**
+     * @dev Constructor function to initialize the marketplace.
+     * @param _fractionalizedNFT Address of the FractionalizedNFT contract.
+     * @param _matic Address of the Matic contract.
+     */
     constructor(
         address _fractionalizedNFT,
         address _matic
@@ -54,7 +67,12 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         matic = Matic(_matic);
     }
 
-    // Function to list a token for sale
+    /**
+     * @dev Function to list a token for sale.
+     * @param tokenId ID of the token.
+     * @param amount Amount of the fractions to be listed.
+     * @param price Price per unit of the token.
+     */
     function listTokenForSale(
         uint256 tokenId,
         uint256 amount,
@@ -82,7 +100,10 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         emit TokenListed(tokenId, msg.sender, amount, price);
     }
 
-    // Function to remove a token from sale
+    /**
+     * @dev Function to remove a token from sale.
+     * @param tokenId ID of the token to be removed from sale.
+     */
     function removeTokenFromSale(
         uint256 tokenId
     ) external nonReentrant onlySeller(tokenId) {
@@ -94,7 +115,12 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         emit TokenRemovedFromSale(tokenId);
     }
 
-    // Function to buy a token
+    /**
+     * @dev Function to buy a token.
+     * @param tokenId ID of the token to be bought.
+     * @param amount Amount of the token to be bought.
+     * @param data Additional data for the token transfer.
+     */
     function buyToken(
         uint256 tokenId,
         uint256 amount,
@@ -140,7 +166,11 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         }
     }
 
-    // Function to check if a token is fractionalized
+    /**
+     * @dev Function to check if a token is fractionalized.
+     * @param tokenId ID of the token to be checked.
+     * @return A boolean indicating whether the token is fractionalized.
+     */
     function isFractionalized(uint256 tokenId) internal view returns (bool) {
         return fractionalizedNFT.balanceOf(msg.sender, tokenId) > 0;
     }

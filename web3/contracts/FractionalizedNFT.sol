@@ -7,43 +7,47 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Pausable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Burnable.sol";
 import {Reserver} from "./Reserver.sol";
 
-// import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
-
+/**
+ * @title FractionalizedNFT
+ * @dev ERC1155 token with fractional ownership, pausability, burnable, and role-based access control.
+ */
 contract FractionalizedNFT is
     ERC1155,
     AccessControl,
     ERC1155Pausable,
     ERC1155Burnable
 {
-    struct ApproveData {
-        address[] approvals;
-        mapping(address => uint256) allowances;
-    }
-
+    // Roles
     bytes32 public constant URI_SETTER_ROLE = keccak256("URI_SETTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    // Token ID to total amount mapping
+    // Constants
     uint256 public constant MAX_TOKEN_AMOUNT = 10000;
 
-    // Reserver contract address
+    // Structs
+    struct ApproveData {
+        address[] approvals;
+        mapping(address => uint256) allowances;
+    }
+    // Contract instances
     Reserver private reserver;
 
     // Token ID to Metadata
     mapping(uint256 => string) private metadatas;
 
+    // Ownership and ownership related mappings
     // Token ID to percentage ownership mapping
     mapping(uint256 => mapping(address => uint256)) private ownership;
-
     // Token ID to oweners list
     mapping(uint256 => address[]) private owners;
-
     // Owner address ot owned tokens
     mapping(address => uint256[]) private ownedTokens;
 
+    // Token ID to approved amounts
     mapping(uint256 => ApproveData) private approvedAmounts;
 
+    // Events
     // Event emitted when a new token is minted
     event TokenMinted(uint256 indexed tokenId, address account);
 
@@ -65,11 +69,15 @@ contract FractionalizedNFT is
         uint256 amount
     );
 
+    /**
+     * @dev Constructor
+     * @param defaultAdmin Default admin address with all roles
+     * @param _reserver Address of the Reserver contract
+     * @param uri Base URI for token metadata
+     */
     constructor(
         address defaultAdmin,
         address _reserver,
-        // address pauser,
-        // address minter,
         string memory uri
     ) ERC1155(uri) {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
@@ -80,13 +88,24 @@ contract FractionalizedNFT is
         reserver = Reserver(_reserver);
     }
 
+    /**
+     * @dev Set the Reserver contract address
+     * @param _reserver New Reserver contract address
+     */
     function setReserver(
         address _reserver
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         reserver = Reserver(_reserver);
     }
 
-    // Function to mint a new token with a specific amount as totalAmount
+    /**
+     * @dev Mint a new token with a specific amount as totalAmount
+     * @param account Address to receive the minted tokens
+     * @param tokenId ID of the token to be minted
+     * @param metadata Metadata associated with the token
+     * @param reservable Boolean indicating whether the token is related to a reservable asset
+     * @param data Additional data for minting
+     */
     function mint(
         address account,
         uint256 tokenId,
@@ -97,11 +116,6 @@ contract FractionalizedNFT is
         if (reservable) {
             require(reserver.isReserved(tokenId), "Asset is not reserved yet");
         }
-
-        // uint256 tokenId = uint256(
-        //     keccak256(abi.encodePacked(account, data, block.timestamp))
-        // );
-
         _mint(account, tokenId, MAX_TOKEN_AMOUNT, data);
         metadatas[tokenId] = metadata;
         // totalAmount[tokenId] = amount;
@@ -111,16 +125,23 @@ contract FractionalizedNFT is
         emit TokenMinted(tokenId, account);
     }
 
+    /**
+     * @dev Mint multiple tokens in a batch
+     * @param account Address to receive the minted tokens
+     * @param count Number of tokens to mint
+     * @param tokenId Array of token IDs to be minted
+     * @param metadata Array of metadata associated with the tokens
+     * @param reservable Boolean indicating whether each token is related to a reservable asset
+     * @param data Additional data for minting
+     */
     function mintBatch(
         address account,
         uint8 count,
         uint256[] memory tokenId,
-        string []memory metadata,
+        string[] memory metadata,
         bool reservable,
         bytes memory data
     ) external onlyRole(MINTER_ROLE) {
-        // uint256[] memory tokenId = new uint256[](count);
-
         if (reservable) {
             for (uint8 i; i < count; i++) {
                 require(
@@ -132,10 +153,6 @@ contract FractionalizedNFT is
         uint256[] memory amounts = new uint256[](count);
 
         for (uint8 i; i < count; i++) {
-            // tokenId[i] = uint256(
-            //     keccak256(abi.encodePacked(account, data, block.timestamp, i))
-            // );
-
             amounts[i] = MAX_TOKEN_AMOUNT;
         }
         _mintBatch(account, tokenId, amounts, data);
@@ -149,7 +166,85 @@ contract FractionalizedNFT is
         }
     }
 
-    // Function to transfer ownership of a token
+    /**
+     * @dev Approve an operator to spend a specific amount of tokens on behalf of the owner
+     * @param tokenId ID of the token
+     * @param operator Address to approve
+     * @param amount Amount of fractions to approve
+     */
+    function approve(
+        uint256 tokenId,
+        address operator,
+        uint256 amount
+    ) external {
+        require(
+            ownership[tokenId][msg.sender] >= amount,
+            "Insufficient allowance"
+        );
+        require(msg.sender != operator, "Approval to current owner");
+
+        // approveAmounts(tokenId, operator, amount);
+        // if (amount == MAX_TOKEN_AMOUNT) {
+        setApprovalForAll(operator, true);
+        // }
+
+        ApproveData storage approveData = approvedAmounts[tokenId];
+        // If have any allowance before
+        if (approveData.allowances[operator] == 0) {
+            approveData.approvals.push(operator);
+        }
+        approveData.allowances[operator] = amount;
+        emit AmountApproved(tokenId, operator, amount);
+    }
+
+    /**
+     * @dev Remove approval for an operator on a specific token
+     * @param operator Address to remove approval from
+     * @param tokenId ID of the token
+     */
+    function removeApproval(address operator, uint256 tokenId) external {
+        require(
+            ownership[tokenId][msg.sender] > 0,
+            "Invalid ownership amount to remove approval"
+        );
+        uint256 currentAllowance = allowance(tokenId, operator);
+        require(currentAllowance > 0, "Insufficient operator allowance");
+        spendAllowance(operator, tokenId, currentAllowance);
+
+        setApprovalForAll(operator, false);
+    }
+
+    /**
+     * @dev Transfer tokens on behalf of an owner to another address
+     * @param from Owner address
+     * @param to Address to receive the tokens
+     * @param tokenId ID of the token
+     * @param amount Amount of fractions to transfer
+     * @param data Additional data for the transfer
+     */
+    function transferFrom(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        bytes memory data
+    ) external {
+        uint256 currentAllowance = allowance(tokenId, msg.sender);
+        require(currentAllowance >= amount, "Insufficient allowance");
+        spendAllowance(msg.sender, tokenId, amount);
+
+        // Call transfer fuction of this contract
+        transfer(from, to, tokenId, amount, data);
+    }
+
+    /**
+     * @dev Transfer ownership of a specific amount of tokens from one address to another
+     * @param from Address from which the tokens are transferred
+     * @param to Address to which the tokens are transferred
+     * @param tokenId ID of the token
+     * @param amount Amount of fractions to transfer
+     * @param data Additional data for the transfer
+     */
     function transfer(
         address from,
         address to,
@@ -179,86 +274,49 @@ contract FractionalizedNFT is
         emit AmountTransferred(tokenId, from, to, amount);
     }
 
-    function approve(
-        uint256 tokenId,
-        address operator,
-        uint256 amount
-    ) external {
-        require(
-            ownership[tokenId][msg.sender] >= amount,
-            "Insufficient allowance"
-        );
-        require(msg.sender != operator, "Approval to current owner");
-
-        // approveAmounts(tokenId, operator, amount);
-        // if (amount == MAX_TOKEN_AMOUNT) {
-        setApprovalForAll(operator, true);
-        // }
-
-        ApproveData storage approveData = approvedAmounts[tokenId];
-        // If have any allowance before
-        if (approveData.allowances[operator] == 0) {
-            approveData.approvals.push(operator);
-        }
-        approveData.allowances[operator] = amount;
-        emit AmountApproved(tokenId, operator, amount);
-    }
-
-    function removeApproval(address operator, uint256 tokenId) external {
-        require(
-            ownership[tokenId][msg.sender] > 0,
-            "Invalid ownership amount to remove approval"
-        );
-        uint256 currentAllowance = allowance(tokenId, operator);
-        require(currentAllowance > 0, "Insufficient operator allowance");
-        spendAllowance(operator, tokenId, currentAllowance);
-
-        setApprovalForAll(operator, false);
-    }
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        uint256 amount,
-        bytes memory data
-    ) external {
-        uint256 currentAllowance = allowance(tokenId, msg.sender);
-        require(currentAllowance >= amount, "Insufficient allowance");
-        spendAllowance(msg.sender, tokenId, amount);
-
-        // Call transfer fuction of this contract
-        transfer(from, to, tokenId, amount, data);
-    }
-
-    function allowance(
-        uint256 tokenId,
-        address operator
-    ) public view returns (uint256) {
-        return approvedAmounts[tokenId].allowances[operator];
-    }
-
-    function getMetadata(uint256 tokenId) external view returns (string memory) {
+    /**
+     * @dev Get the metadata associated with a token
+     * @param tokenId ID of the token
+     * @return Metadata string
+     */
+    function getMetadata(
+        uint256 tokenId
+    ) external view returns (string memory) {
         return metadatas[tokenId];
     }
 
-    // Function to get a token's amount of ownership for an account
-    // Must be equal to balanceOf(account, tokenId)
+    /**
+     * @dev Get the ownership amount of a specific account for a specific token
+     * @param account Address of the account
+     * @param tokenId ID of the token
+     * @return Amount of ownership for the account
+     */
     function getOwnershipAmount(
         address account,
         uint256 tokenId
     ) external view returns (uint256) {
         return ownership[tokenId][account];
+        // Equal to:
+        // return balanceOf(account, tokenId);
     }
 
-    // Function to get token owners list
+    /**
+     * @dev Get the list of all accounts that own a specific token
+     * @param tokenId ID of the token
+     * @return Array of addresses that own the token
+     */
     function getOwners(
         uint256 tokenId
     ) external view returns (address[] memory) {
         return owners[tokenId];
     }
 
-    // Function to get ownership percentage of an account for a token
+    /**
+     * @dev Get the percentage ownership of an account for a specific token
+     * @param account Address of the account
+     * @param tokenId ID of the token
+     * @return Percentage ownership of the account for the token
+     */
     function getOwnershipPercentage(
         address account,
         uint256 tokenId
@@ -266,24 +324,69 @@ contract FractionalizedNFT is
         return (ownership[tokenId][account] * 100) / MAX_TOKEN_AMOUNT;
     }
 
+    /**
+     * @dev Get the list of tokens owned by a specific account
+     * @param account Address of the account
+     * @return Array of token IDs owned by the account
+     */
     function getOwnedTokens(
         address account
     ) external view returns (uint256[] memory) {
         return ownedTokens[account];
     }
 
+    /**
+     * @dev Get the allowance for a specific operator on a token
+     * @param tokenId ID of the token
+     * @param operator Address of the operator
+     * @return Allowance amount
+     */
+    function allowance(
+        uint256 tokenId,
+        address operator
+    ) public view returns (uint256) {
+        return approvedAmounts[tokenId].allowances[operator];
+    }
+
+    /**
+     * @dev Check if a contract supports a specific interface
+     * @param interfaceId Interface identifier
+     * @return Boolean indicating whether the contract supports the interface
+     */
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC1155, AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @dev Set a new URI for all token metadata
+     * @param newuri New URI to set
+     */
     function setURI(string memory newuri) public onlyRole(URI_SETTER_ROLE) {
         _setURI(newuri);
     }
 
+    /**
+     * @dev Pause the contract, preventing transfers and approvals
+     */
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
 
+    /**
+     * @dev Unpause the contract, allowing transfers and approvals
+     */
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
 
+    /**
+     * @dev Spend the allowance of a specific operator on a token
+     * @param operator Address of the operator
+     * @param tokenId ID of the token
+     * @param amount Amount to spend from the allowance
+     */
     function spendAllowance(
         address operator,
         uint256 tokenId,
@@ -295,7 +398,11 @@ contract FractionalizedNFT is
         approvedAmounts[tokenId].allowances[operator] -= amount;
     }
 
-    // Function to remove an account from token owners list and remove the token from its owned tokens list
+    /**
+     * @dev Remove an account from token owners list and remove the token from its owned tokens list
+     * @param tokenId ID of the token
+     * @param account Address to remove from ownership
+     */
     function removeOwner(uint256 tokenId, address account) internal {
         // Storage pointer to access owners list
         address[] storage _owners = owners[tokenId];
@@ -326,7 +433,13 @@ contract FractionalizedNFT is
         emit OwnershipRemoved(tokenId, account);
     }
 
-    // The following functions are overrides required by Solidity.
+    /**
+     * @dev Internal function to update the balance of multiple accounts and tokens
+     * @param from Address from which the tokens will be transferred
+     * @param to Address to which the tokens will be transferred
+     * @param ids Array of token IDs
+     * @param values Array of amounts to transfer
+     */
     function _update(
         address from,
         address to,
@@ -334,11 +447,5 @@ contract FractionalizedNFT is
         uint256[] memory values
     ) internal override(ERC1155, ERC1155Pausable) {
         super._update(from, to, ids, values);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(ERC1155, AccessControl) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 }
