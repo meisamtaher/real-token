@@ -7,6 +7,7 @@ import { FractionalizeNFTContractAddress } from '../constants/constants';
 import NFTContract from '../constants/FractionalizedNFT.json'
 import { useAccount } from 'wagmi';
 import {ethers} from 'ethers';
+import {uint256toCid} from '../utils/cidConvert'
 
 
 function Profile() {
@@ -20,6 +21,8 @@ function Profile() {
     const tokens = await myContract.getOwnedTokens(account.address);
     const balance = await myContract.balanceOf(account.address,tokens[0]);
     const balance2 = await myContract.getOwnershipAmount(account.address,tokens[0]);
+    const cidget = uint256toCid(tokens[0]);
+    console.log("CID of the token: ", cidget);
     console.log("List of all tokens:",tokens)
     console.log("Balance of user in first token:", balance);
     console.log("Balance2 of user in first token:", balance2);

@@ -5,7 +5,7 @@ import ImageUploadToIPFS from '../components/FileUpload';
 import { useAccount, useContractWrite,usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
 import {  FractionalizeNFTContractAddress } from '../constants/constants';
 import FNFT from "../constants/FractionalizedNFT.json";
-import bs58 from 'bs58';
+import { cidToUint256Str } from '../utils/cidConvert';
 function Mint() {
   const account = useAccount();
   const [cid,setCid] = useState<string|undefined>(undefined);
@@ -24,11 +24,8 @@ function Mint() {
   })
   useEffect(()=>{
     if(cid){
-      const bytes = bs58.decode(cid).slice(2);
-      console.log("bytes: ",bytes);
-      const byteArray = Array.from(bytes);
-      const hexString = byteArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
-      setTokenId("0x" + hexString);
+      const temp = cidToUint256Str(cid);
+      setTokenId(temp);
     }
   },[cid]);
   return (
