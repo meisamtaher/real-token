@@ -5,7 +5,7 @@ import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract NarpetReserver is ChainlinkClient, Ownable {
+contract Reserver is ChainlinkClient, Ownable {
   using Chainlink for Chainlink.Request;
   using Strings for uint256;
 
@@ -25,7 +25,7 @@ contract NarpetReserver is ChainlinkClient, Ownable {
   mapping(address => bool) public requestPending;
   mapping(uint256 => bool) public reserved;
 
-  constructor() {}
+  constructor() Ownable(msg.sender) {}
 
   function setJobConfig(
     address _link,

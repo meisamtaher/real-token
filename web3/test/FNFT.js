@@ -1,11 +1,14 @@
 // Import the necessary libraries
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const bs58 = require("bs58");
+
 // const keccak256 = require("keccak256");
 
 // Describe the test suite
 describe("FractionalizedNFT Contract", function () {
   let fractionalizedNFT;
+  let reserver;
   let owner;
   let user1;
   let user2;
@@ -14,11 +17,16 @@ describe("FractionalizedNFT Contract", function () {
   beforeEach(async function () {
     [owner, user1, user2] = await ethers.getSigners();
 
+    const Reserver = await ethers.getContractFactory("Reserver");
+
+    reserver = await Reserver.deploy();
+
     const FractionalizedNFT = await ethers.getContractFactory(
       "FractionalizedNFT"
     );
     fractionalizedNFT = await FractionalizedNFT.deploy(
       owner.address,
+      reserver.target,
       "https://example.com/"
     );
     // await fractionalizedNFT.deployed();
@@ -257,22 +265,17 @@ describe("FractionalizedNFT Contract", function () {
   });
 
   it.only("Should convert CID to uint as tokenId", async function () {
-    // const { create } = require('ipfs-http-client');
+    const ipfsCid = "QmVd9NV6QDK2MoEEcj2RtUbiXC3MaNjHmud2xFUMTs9xmZ";
+    // Decode the Base58 encoded CID to bytes
+    const bytes = bs58.decode(ipfsCid);
+    console.log(bytes);
 
-    // Sample CID from IPFS
-    const ipfsCid = "QmX1P3DHm2fHe6U5FikKsFpPzyxYrbs4snYSwDCd4ktVR1";
+    const stringNumber = "0x" + bytes.toString("hex");
+    console.log(stringNumber);
+    const uint256Value = BigInt(stringNumber);
 
-    // Hash the CID using keccak256
-    // const hashedCid = ethers.keccak256(ethers.toUtf8Bytes(ipfsCid));
-    const bytesCid = ethers.toUtf8Bytes(ipfsCid);
+    const tokenId = uint256Value;
 
-    // Convert the hashed CID to uint
-    // const tokenId = BigInt("0x" + hashedCid.toString("hex")).toString();
-    const tokenId = ("0x" + ipfsCid);
-
-    // Now, `tokenId` can be used as a numerical identifier in your smart contract
-    console.log("CID: ", ipfsCid);
-    // console.log("hashedCid: ", hashedCid);
-    console.log("Token ID:", tokenId);
+    console.log(tokenId);
   });
 });

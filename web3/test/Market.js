@@ -7,6 +7,7 @@ const AddressZero = "0x0000000000000000000000000000000000000000";
 // Describe the test suite
 describe("MarketPlace Contract", function () {
   let fractionalizedNFT;
+  let reserver;
   let matic;
   let marketplace;
   let owner;
@@ -17,12 +18,16 @@ describe("MarketPlace Contract", function () {
   // Deploy the contract before each test
   beforeEach(async function () {
     [owner, user1, user2] = await ethers.getSigners();
+    const Reserver = await ethers.getContractFactory("Reserver");
+
+    reserver = await Reserver.deploy();
 
     const FractionalizedNFT = await ethers.getContractFactory(
       "FractionalizedNFT"
     );
     fractionalizedNFT = await FractionalizedNFT.deploy(
       owner.address,
+      reserver.target,
       "https://example.com/"
     );
 
