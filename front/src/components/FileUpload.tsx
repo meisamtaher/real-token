@@ -1,15 +1,30 @@
 import React, { ChangeEvent, useState } from 'react';
 import axios from 'axios';
 import { Typography } from '@mui/material';
-
-const ImageUploadToIPFS = () => {
+import { Button } from '@mui/base';
+interface Props{
+  cid: string|undefined,
+  setCid: React.Dispatch<React.SetStateAction<string | undefined>>
+}
+const ImageUploadToIPFS = (props: Props) => {
   const [file, setFile] = useState<File|null>(null);
   const [url, setUrl] = useState('');
+  const [json, setJson] = useState('');
+  const [name, setName] = useState<string|undefined>(undefined);
+  const [description, setDescription] = useState<string|undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
 
   const onFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if(e?.target?.files)
         setFile(e?.target?.files[0]);
+  };
+  const onNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if(e?.target?.value)
+        setName(e?.target?.value);
+  };  
+  const onDescriptionChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if(e?.target?.value)
+      setDescription(e?.target?.value);
   };
 
   const uploadToIPFS = async () => {
@@ -34,6 +49,27 @@ const ImageUploadToIPFS = () => {
       const ipfsUri = `https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/${response.data.IpfsHash}`;
       setUrl(ipfsUri);
       console.log('IPFS URL:', ipfsUri);
+      const data = JSON.stringify({
+        pinataContent: {
+          name: name,
+          description: description,
+          external_url: "https://Narpet.io",
+          image: ipfsUri
+        },
+        pinataMetadata: {
+          name: "metadata.json"
+        }
+      })
+      const res = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`
+          }
+        });
+      console.log(res.data);
+      const Url = `https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/${res.data.IpfsHash}`;
+      setJson(Url);
+      props.setCid(res.data.IpfsHash);
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -43,10 +79,13 @@ const ImageUploadToIPFS = () => {
   return (
     <div>
       <input disabled = {loading} type="file" onChange={onFileChange} accept="image/*" />
-      <button disabled = {loading} onClick={uploadToIPFS}>Upload to IPFS</button>
+      <input type = "text" content={name} onChange={onNameChange}/>
+      <input type = "text" content={description} onChange={onDescriptionChange}/>
+      <Button disabled = {loading} onClick={uploadToIPFS}>Upload to IPFS</Button>
       {loading && <Typography>Uploading file ...</Typography>}
       {url && <div><a href={url} target="_blank" rel="noopener noreferrer">View uploaded image</a></div>}
       {url && <img  src={url} width={200} height={275}/>}
+      {json && <div><a href={json} target="_blank" rel="noopener noreferrer">View Json Metadat</a></div>}
     </div>
   );
 };
