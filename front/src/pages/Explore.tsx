@@ -3,8 +3,6 @@ import  { useEffect,useState} from 'react';
 import { useNavigate } from 'react-router';
 import NFTCard from '../components/NFTCard';
 import { Grid } from '@mui/material';
-import { publicProvider } from 'wagmi/providers/public'
-import { usePublicClient,useWalletClient } from 'wagmi';
 import MarketPlace from '../constants/MarketPlace.json';
 import {MarketPlaceContractAddress} from '../constants/constants';
 import {ethers} from 'ethers'
@@ -13,7 +11,6 @@ import { ListedNFT } from '../interfaces/types';
 
 function Explore() {
   const navigate = useNavigate();
-  const { data: signer } = useWalletClient();
   const getPastEvents = async () => {
     const provider = new ethers.JsonRpcProvider("https://polygon-mumbai.g.alchemy.com/v2/BmepUpwxd86PJSuisn7P4f3lZJSqcAUt")
     const contractABI = MarketPlace.abi;

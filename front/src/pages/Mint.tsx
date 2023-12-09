@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Button from '@mui/material/Button';
 import { Grid, Typography } from '@mui/material';
 import ImageUploadToIPFS from '../components/FileUpload';
-import { useAccount,useContractWrite,usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
-import { FReserverContractAddress, FractionalizeNFTContractAddress } from '../constants/constants';
-import FReserver from "../constants/Reserver.json";
+import { useContractWrite,usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import {  FractionalizeNFTContractAddress } from '../constants/constants';
 import FNFT from "../constants/FractionalizedNFT.json";
 
 
 function Mint() {
-  const account = useAccount();
   const [cid,setCid] = useState<string|undefined>(undefined);
   const accountAddress = "0x4342577729e8D30325260f32719a1A10242Ba23a";
   const tokenId = "QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq";

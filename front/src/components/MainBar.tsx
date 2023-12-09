@@ -9,16 +9,13 @@ import Box from '@mui/material/Box';
 import Logo from '/Logo.svg';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { Avatar } from '@mui/material';
-import { useAccount, useWalletClient } from 'wagmi';
+import { useAccount } from 'wagmi';
 import { Stack } from '@mui/system';
-import { sign } from 'crypto';
-
 
 const pages = ['MarketPlace', 'Factory'];
 
 function MainBar() {
   const navigate = useNavigate();
-  const signer = useWalletClient();
   const account = useAccount();
   const goToProfile = ()=>{
     if(account.isConnected)

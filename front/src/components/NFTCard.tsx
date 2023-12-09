@@ -1,6 +1,5 @@
 // import {useNavigate} from 'react-router-dom';
-import  { useEffect} from 'react';
-import { Card,CardContent, Typography, Button, Avatar, Stack } from '@mui/material';
+import { Card,CardContent, Button} from '@mui/material';
 import { ListedNFTProp } from '../interfaces/types';
 import { PropsWithChildren } from 'react';
 
