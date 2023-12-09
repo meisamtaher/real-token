@@ -4,10 +4,8 @@ pragma solidity ^0.8.0;
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import {ReserveConsumerV3} from "./ReserveConsumerV3.sol";
 
-contract Custodian is ChainlinkClient, Ownable {
-
+contract NarpetReserver is ChainlinkClient, Ownable {
   using Chainlink for Chainlink.Request;
   using Strings for uint256;
 
@@ -22,10 +20,12 @@ contract Custodian is ChainlinkClient, Ownable {
 
   mapping(bytes32 => Request) public requests;
   mapping(uint256 => address) public owners;
+  
   uint256 public fulfills;
 
   mapping(address => bool) public requestPending;
-
+  mapping(string => bool) public reserved;
+  
   constructor() {}
 
   function setJobConfig(
@@ -40,7 +40,24 @@ contract Custodian is ChainlinkClient, Ownable {
     fee = _fee;
   }
 
-  function verify(uint256 tokenId) public {
+  function isResered(string memory ccid) public view returns (bool) {
+    return reserved[ccid];
+  }
+
+  function Reserve(string memory ccid) public view returns(bool){
+    try {
+        reqID = verify(tokenId);
+        fulfill(reqID, msg.sender);
+        reserved[ccid] = true;
+        return true;
+    } catch (bytes memory) {
+        // Handle the error by setting reserved[ccid] to false
+        reserved[ccid] = false;
+        return false;
+    }
+  }
+
+  function verify(string memory tokenId) public returns(bytes32) {
     address sender = address(this);
 
     require(!requestPending[sender], "Sender already has a pending request");
@@ -50,16 +67,20 @@ contract Custodian is ChainlinkClient, Ownable {
       sender,
       this.fulfill.selector
     );
-    request.add("tokenId", tokenId.toString());
+    request.add("tokenId", ccid);
 
     bytes32 requestId = sendChainlinkRequestTo(oracle, request, fee);
     requests[requestId] = Request(sender, tokenId);
     requestPending[sender] = true;
+
+    return requestId;
+
   }
 
   function fulfill(bytes32 requestId, bytes32 owner) public {
     Request storage request = requests[requestId];
 
+    // TODO: Add validator before minting the token. Only the sender should be able to mint!
     owners[request.tokenId] = address(uint160(uint256(owner)));
     fulfills += 1;
 
