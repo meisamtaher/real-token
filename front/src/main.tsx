@@ -28,7 +28,6 @@ const { chains, publicClient } = configureChains(
     publicProvider()
   ]
 );
-console.log(" Project ID:" ,import.meta.env.REACT_APP_PROJECT_ID)
 const { connectors } = getDefaultWallets({
   appName: 'My RainbowKit App',
   projectId: import.meta.env.VITE_REACT_APP_PROJECT_ID as string,

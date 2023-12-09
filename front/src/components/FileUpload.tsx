@@ -33,12 +33,12 @@ const ImageUploadToIPFS = (props: Props) => {
     const formData = new FormData();
     formData.append("file", file);
     const pinataMetadata = JSON.stringify({
-      name: 'File name',
+      name: 'NFTPic',
     });
     formData.append('pinataMetadata', pinataMetadata);
     try {
       console.log("Uploading file on IPFS... ");
-      const response = await axios.post("https://api.pinata.cloud/pinning/pinFileToIPFS", formData, {
+      const response = await axios.post(import.meta.env.VITE_PINATA_PIN_FILE_URL, formData, {
         maxBodyLength: Infinity,
         headers: {
           'Content-Type': `multipart/form-data;`,
@@ -46,7 +46,7 @@ const ImageUploadToIPFS = (props: Props) => {
         }
       });
       console.log("response: ",response);
-      const ipfsUri = `https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/${response.data.IpfsHash}`;
+      const ipfsUri = import.meta.env.VITE_PINATA_GET_URL+response.data.IpfsHash;
       setUrl(ipfsUri);
       console.log('IPFS URL:', ipfsUri);
       const data = JSON.stringify({
@@ -60,14 +60,14 @@ const ImageUploadToIPFS = (props: Props) => {
           name: "metadata.json"
         }
       })
-      const res = await axios.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", data, {
+      const res = await axios.post(import.meta.env.VITE_PINATA_PIN_JSON_URL, data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${import.meta.env.VITE_PINATA_JWT}`
           }
         });
       console.log(res.data);
-      const Url = `https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/${res.data.IpfsHash}`;
+      const Url = import.meta.env.VITE_PINATA_GET_URL+res.data.IpfsHash;
       setJson(Url);
       props.setCid(res.data.IpfsHash);
     } catch (error) {
