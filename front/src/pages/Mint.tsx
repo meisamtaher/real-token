@@ -1,29 +1,36 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import Button from '@mui/material/Button';
 import { Grid, Typography } from '@mui/material';
 import ImageUploadToIPFS from '../components/FileUpload';
-import { useContractWrite,usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { useAccount, useContractWrite,usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
 import {  FractionalizeNFTContractAddress } from '../constants/constants';
 import FNFT from "../constants/FractionalizedNFT.json";
-
-
+import bs58 from 'bs58';
 function Mint() {
+  const account = useAccount();
   const [cid,setCid] = useState<string|undefined>(undefined);
-  const accountAddress = "0x4342577729e8D30325260f32719a1A10242Ba23a";
-  const tokenId = "QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq";
+  const [tokenId,setTokenId] = useState<string|undefined>(undefined);
   const reservable = false;
   const { config } = usePrepareContractWrite({
     address: FractionalizeNFTContractAddress,
     abi: FNFT.abi,
     functionName: 'mint',
-    args: [accountAddress, tokenId, reservable, accountAddress],
-    enabled: Boolean(accountAddress && tokenId && reservable!=null && accountAddress),
+    args: [account.address, tokenId,cid, reservable, account.address],
+    enabled: Boolean(account.address && cid && tokenId && reservable!=null && account.address),
   })
   const { data ,write } = useContractWrite(config);
   const { isLoading, isSuccess } = useWaitForTransaction({
     hash: data?.hash,
   })
-  
+  useEffect(()=>{
+    if(cid){
+      const bytes = bs58.decode(cid).slice(2);
+      console.log("bytes: ",bytes);
+      const byteArray = Array.from(bytes);
+      const hexString = byteArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+      setTokenId("0x" + hexString);
+    }
+  },[cid]);
   return (
   <Grid container justifyContent={'center'} spacing={3} padding={7} direction="column" alignItems={'center'}>
     <ImageUploadToIPFS cid = {cid} setCid = {setCid}/>
@@ -37,7 +44,7 @@ function Mint() {
         </div>
       )}
     {cid && <Typography>{cid}</Typography>}
-    <Button disabled={cid == undefined} onClick={()=>{ console.log("Trying to mint..."); write?.()}}>
+    <Button disabled={cid == undefined} onClick={()=>{ console.log("Trying to mint..."); write?.(); }}>
        Mint
     </Button>
   </Grid>
