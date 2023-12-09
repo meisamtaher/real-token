@@ -91,7 +91,7 @@ contract FractionalizedNFT is
         uint256 tokenId,
         bool reservable,
         bytes memory data
-    ) external onlyRole(MINTER_ROLE) {
+    ) external /*onlyRole(MINTER_ROLE)*/ {
 
         if(reservable){
             require(reserver.isReserved(tokenId), "Asset is not reserved yet");
