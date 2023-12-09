@@ -54,7 +54,7 @@ function MainBar() {
             ))}
           </Box>
           <Stack sx={{ flexGrow: 0 }} direction={'row'}>
-            <ConnectButton  chainStatus="none" accountStatus={{smallScreen:'avatar',largeScreen: 'address',}}/>
+            <ConnectButton  chainStatus="full" accountStatus={{smallScreen:'avatar',largeScreen: 'address',}}/>
             {account.isConnected &&<div onClick={goToProfile}>
               <Avatar />
             </div>}

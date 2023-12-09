@@ -11,18 +11,19 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { configureChains, createConfig, sepolia, WagmiConfig } from 'wagmi';
 import {
-  goerli,
-  scrollSepolia,
-  arbitrumGoerli,
-  polygonZkEvmTestnet,
-  mantleTestnet,
-  lineaTestnet,
-  baseGoerli,
+  polygonMumbai,
+  // goerli,
+  // scrollSepolia,
+  // arbitrumGoerli,
+  // polygonZkEvmTestnet,
+  // mantleTestnet,
+  // lineaTestnet,
+  // baseGoerli,
 } from 'wagmi/chains';
 // import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 const { chains, publicClient } = configureChains(
-  [goerli, sepolia, scrollSepolia, arbitrumGoerli, polygonZkEvmTestnet, mantleTestnet, lineaTestnet, baseGoerli],
+  [polygonMumbai],
   [
     publicProvider()
   ]
