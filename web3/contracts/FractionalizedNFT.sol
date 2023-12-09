@@ -29,7 +29,7 @@ contract FractionalizedNFT is
 
     // Reserver contract address
     Reserver public reserver;
- 
+
     // Token ID to percentage ownership mapping
     mapping(uint256 => mapping(address => uint256)) public ownership;
 
@@ -74,14 +74,15 @@ contract FractionalizedNFT is
     {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, defaultAdmin);
-        _grantRole(MINTER_ROLE, defaultAdmin); 
-        _grantRole(URI_SETTER_ROLE, defaultAdmin); 
+        _grantRole(MINTER_ROLE, defaultAdmin);
+        _grantRole(URI_SETTER_ROLE, defaultAdmin);
 
         reserver = Reserver(_reserver);
     }
 
-
-    function setReserver(address _reserver) external onlyRole(DEFAULT_ADMIN_ROLE){
+    function setReserver(
+        address _reserver
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         reserver = Reserver(_reserver);
     }
 
@@ -92,8 +93,7 @@ contract FractionalizedNFT is
         bool reservable,
         bytes memory data
     ) external /*onlyRole(MINTER_ROLE)*/ {
-
-        if(reservable){
+        if (reservable) {
             require(reserver.isReserved(tokenId), "Asset is not reserved yet");
         }
 
@@ -176,9 +176,9 @@ contract FractionalizedNFT is
 
         // approveAmounts(tokenId, operator, amount);
         // if (amount == MAX_TOKEN_AMOUNT) {
-            setApprovalForAll(operator, true);
+        setApprovalForAll(operator, true);
         // }
- 
+
         ApproveData storage approveData = approvedAmounts[tokenId];
         // If have any allowance before
         if (approveData.allowances[operator] == 0) {

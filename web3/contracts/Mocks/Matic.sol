@@ -15,7 +15,9 @@ contract Matic is ERC20, Ownable {
     // Called if contract ever adds fees
     event Params(uint feeBasisPoints, uint maxFee);
 
-    constructor(uint _totalSupply) ERC20("Matic Token", "Matic") Ownable(msg.sender) {  
+    constructor(
+        uint _totalSupply
+    ) ERC20("Matic Token", "Matic") Ownable(msg.sender) {
         _mint(_msgSender(), _totalSupply);
     }
 
