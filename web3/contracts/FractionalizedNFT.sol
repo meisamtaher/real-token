@@ -28,16 +28,19 @@ contract FractionalizedNFT is
     uint256 public constant MAX_TOKEN_AMOUNT = 10000;
 
     // Reserver contract address
-    Reserver public reserver;
+    Reserver private reserver;
+
+    // Token ID to Metadata
+    mapping(uint256 => string) private metadatas;
 
     // Token ID to percentage ownership mapping
-    mapping(uint256 => mapping(address => uint256)) public ownership;
+    mapping(uint256 => mapping(address => uint256)) private ownership;
 
     // Token ID to oweners list
-    mapping(uint256 => address[]) public owners;
+    mapping(uint256 => address[]) private owners;
 
     // Owner address ot owned tokens
-    mapping(address => uint256[]) public ownedTokens;
+    mapping(address => uint256[]) private ownedTokens;
 
     mapping(uint256 => ApproveData) private approvedAmounts;
 
@@ -68,10 +71,7 @@ contract FractionalizedNFT is
         // address pauser,
         // address minter,
         string memory uri
-    )
-        /*ERC1155("https://meisamtaher.github.io/real-token/")*/
-        ERC1155(uri)
-    {
+    ) ERC1155(uri) {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, defaultAdmin);
         _grantRole(MINTER_ROLE, defaultAdmin);
@@ -90,6 +90,7 @@ contract FractionalizedNFT is
     function mint(
         address account,
         uint256 tokenId,
+        string memory metadata,
         bool reservable,
         bytes memory data
     ) external /*onlyRole(MINTER_ROLE)*/ {
@@ -102,6 +103,7 @@ contract FractionalizedNFT is
         // );
 
         _mint(account, tokenId, MAX_TOKEN_AMOUNT, data);
+        metadatas[tokenId] = metadata;
         // totalAmount[tokenId] = amount;
         ownership[tokenId][account] = MAX_TOKEN_AMOUNT;
         owners[tokenId].push(account);
@@ -112,24 +114,38 @@ contract FractionalizedNFT is
     function mintBatch(
         address account,
         uint8 count,
-        uint256[] memory tokenIds,
+        uint256[] memory tokenId,
+        string []memory metadata,
+        bool reservable,
         bytes memory data
     ) external onlyRole(MINTER_ROLE) {
-        // uint256[] memory tokenIds = new uint256[](count);
+        // uint256[] memory tokenId = new uint256[](count);
+
+        if (reservable) {
+            for (uint8 i; i < count; i++) {
+                require(
+                    reserver.isReserved(tokenId[i]),
+                    "Asset is not reserved yet"
+                );
+            }
+        }
         uint256[] memory amounts = new uint256[](count);
+
         for (uint8 i; i < count; i++) {
-            // tokenIds[i] = uint256(
+            // tokenId[i] = uint256(
             //     keccak256(abi.encodePacked(account, data, block.timestamp, i))
             // );
+
             amounts[i] = MAX_TOKEN_AMOUNT;
         }
-        _mintBatch(account, tokenIds, amounts, data);
-        for (uint i; i < tokenIds.length; i++) {
-            // totalAmount[tokenIds[i]] = amounts[i];
-            ownership[tokenIds[i]][account] = amounts[i];
-            ownedTokens[account].push(tokenIds[i]);
-            owners[tokenIds[i]].push(account);
-            emit TokenMinted(tokenIds[i], account);
+        _mintBatch(account, tokenId, amounts, data);
+        for (uint i; i < tokenId.length; i++) {
+            // totalAmount[tokenId[i]] = amounts[i];
+            ownership[tokenId[i]][account] = amounts[i];
+            ownedTokens[account].push(tokenId[i]);
+            owners[tokenId[i]].push(account);
+            metadatas[tokenId[i]] = metadata[i];
+            emit TokenMinted(tokenId[i], account);
         }
     }
 
@@ -220,6 +236,10 @@ contract FractionalizedNFT is
         address operator
     ) public view returns (uint256) {
         return approvedAmounts[tokenId].allowances[operator];
+    }
+
+    function getMetadata(uint256 tokenId) external view returns (string memory) {
+        return metadatas[tokenId];
     }
 
     // Function to get a token's amount of ownership for an account

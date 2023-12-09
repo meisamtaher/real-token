@@ -2,6 +2,8 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const bs58 = require("bs58");
+const { UintBigInt64 } = require("@nomicfoundation/ethereumjs-util/dist/ssz");
+// const { bytesToBigInt } = require("@nomicfoundation/ethereumjs-util");
 
 // const keccak256 = require("keccak256");
 
@@ -33,12 +35,22 @@ describe("FractionalizedNFT Contract", function () {
   });
 
   // Test the mint function
-  it("Should mint a new token with the correct ownership", async function () {
+  it.only("Should mint a new token with the correct ownership", async function () {
     [owner, user1, user2] = await ethers.getSigners();
     // Mint a new token
+    const ipfsCid = "QmVd9NV6QDK2MoEEcj2RtUbiXC3MaNjHmud2xFUMTs9xmZ";
+    let metadata = ipfsCid;
+    let id = 0
+    id = ethers.keccak256("0x" + bs58.decode(ipfsCid).toString("hex"));
+
+    console.log(id);
+
     const mintTx = (
       await fractionalizedNFT.mint(
         owner.address,
+        id,
+        metadata,
+        false,
         ethers.encodeBytes32String("data")
       )
     ).wait();
@@ -71,10 +83,13 @@ describe("FractionalizedNFT Contract", function () {
       tokenId
     );
 
+    const tokenMetadata = await fractionalizedNFT.getMetadata(tokenId);
+
     const maxAmount = await fractionalizedNFT.MAX_TOKEN_AMOUNT();
     expect(finalBalance).to.equal(ownershipAmount);
     expect(finalBalance).to.equal(maxAmount);
     expect(ownershipPercentage).to.equal(100);
+    expect(tokenMetadata).to.equal(metadata);
   });
 
   // Test the mintBatch function
@@ -264,18 +279,50 @@ describe("FractionalizedNFT Contract", function () {
     expect(updatedURI).to.equal(newURI);
   });
 
-  it.only("Should convert CID to uint as tokenId", async function () {
+  it("Should convert CID to uint as tokenId", async function () {
     const ipfsCid = "QmVd9NV6QDK2MoEEcj2RtUbiXC3MaNjHmud2xFUMTs9xmZ";
+    // const ipfsCid = "QmVd9NV6QDK2MoEEcj2RtUb";
+    const cleanedCid = ipfsCid.slice(2);
+
     // Decode the Base58 encoded CID to bytes
-    const bytes = bs58.decode(ipfsCid);
-    console.log(bytes);
+    const cleanedBytes = bs58.decode(cleanedCid);
+    // console.log(cleanedBytes);
 
-    const stringNumber = "0x" + bytes.toString("hex");
+    const stringNumber = ("0x" + cleanedBytes.toString("hex"));
+    // Convert bytes to a hexadecimal string with a specific length (64 characters)
+    const hexString = cleanedBytes.toString("hex").padStart(64, "0");
     console.log(stringNumber);
-    const uint256Value = BigInt(stringNumber);
+    console.log(hexString);
 
-    const tokenId = uint256Value;
+    // Convert the hexadecimal string to a BigInt
+    const bigIntValue = BigInt("0x" + hexString);
 
-    console.log(tokenId);
+    // const bigIntValue = BigInt("0x" + cleanedBytes.toString("hex"));
+
+    console.log(bigIntValue);
+
+    console.log("Let's mint ---------------------");
+
+    const mintTx = (
+      await fractionalizedNFT.mint(
+        owner.address,
+        bigIntValue,
+        false,
+        ethers.encodeBytes32String("data")
+      )
+    ).wait();
+
+    // Listen for the TokenMinted event
+    const eventFilter = fractionalizedNFT.filters.TokenMinted();
+    const events = await fractionalizedNFT.queryFilter(
+      eventFilter,
+      mintTx.blockHash
+    );
+    // Ensure that at least one event was emitted
+    expect(events.length).to.be.at.least(1);
+    // Get the tokenId from the emitted event
+    const tokenId = events[0].args.tokenId;
+    console.log("Token ID: " + tokenId);
+
   });
 });

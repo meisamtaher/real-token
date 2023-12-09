@@ -20,7 +20,7 @@ contract MarketPlace is Ownable, ReentrancyGuard {
     }
 
     // Mapping from token ID to listed tokens
-    mapping(uint256 => ListedToken) public listedTokens;
+    mapping(uint256 => ListedToken) private listedTokens;
 
     event TokenListed(
         uint256 indexed tokenId,
