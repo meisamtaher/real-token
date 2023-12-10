@@ -1,151 +1,116 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.0;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import {WalletBalance} from "./WalletBalance.sol";
 
-/**
- * @title Reserver
- * @dev A contract for reserving NFTs using Chainlink Proof of Reserve.
- */
-contract Reserver is ChainlinkClient, Ownable {
-    using Chainlink for Chainlink.Request;
-    using Strings for uint256;
+contract NarpetReserver is ChainlinkClient, Ownable {
+  using Chainlink for Chainlink.Request;
+  using Strings for uint256;
 
-    address public oracle;
-    bytes32 public jobId;
-    uint256 public fee;
-    uint randNo = 1132;
+  address public oracle;
+  bytes32 public jobId;
+  uint256 public fee;
+  uint randNo = 1132;
 
-    struct Request {
-        address sender;
-        uint256 tokenId;
-    }
+  struct Request {
+    address sender;
+    uint256 tokenId;
+  }
 
-    mapping(bytes32 => Request) public requests;
-    mapping(uint256 => address) public owners;
-    uint256 public fulfills;
+  WalletBalance public walletbalance;
 
-    mapping(address => bool) public requestPending;
-    mapping(uint256 => bool) public reserved;
-    mapping(uint256 => uint256) public assetPrice;
+  mapping(bytes32 => Request) public requests;
+  mapping(uint256 => address) public owners;
+  uint256 public fulfills;
 
-    constructor() Ownable(msg.sender) {}
+  mapping(address => bool) public requestPending;
+  mapping(uint256 => bool) public reserved;
+  mapping(uint256 => uint256) public assetPrice;
+  address public walletBalance;
+  constructor(address contractWalletBalance) {
+    walletBalance = contractWalletBalance;
+  }
 
-    /**
-     * @dev Sets the Chainlink job configuration.
-     * @param _link The LINK token address.
-     * @param _oracle The Chainlink oracle address.
-     * @param _jobId The Chainlink job ID.
-     * @param _fee The Chainlink fee.
-     */
-    function setJobConfig(
-        address _link,
-        address _oracle,
-        string memory _jobId,
-        uint256 _fee
-    ) public onlyOwner {
-        setChainlinkToken(_link);
-        oracle = _oracle;
-        jobId = stringToBytes32(_jobId);
-        fee = _fee;
-    }
+  modifier checkBalance(address entry){
+    require(walletbalance.getMaticBalance(entry)>100,"is not eligile for minter role");
+    _;
+  }
 
-    /**
-     * @dev Initiates the Chainlink request to verify a tokenId.
-     * @param tokenId The tokenId to be verified.
-     * @return requestId The Chainlink request ID.
-     */
-    function verify(uint256 tokenId) public returns (bytes32) {
-        address sender = address(this);
+  function setJobConfig(
+    address _link,
+    address _oracle,
+    string memory _jobId,
+    uint256 _fee
+  ) public onlyOwner {
+    setChainlinkToken(_link);
+    oracle = _oracle;
+    jobId = stringToBytes32(_jobId);
+    fee = _fee;
+  }
 
-        require(
-            !requestPending[sender],
-            "Sender already has a pending request"
-        );
+  function verify(uint256 tokenId) public returns (bytes32){
+    address sender = address(this);
 
-        Chainlink.Request memory request = buildChainlinkRequest(
-            jobId,
-            sender,
-            this.fulfill.selector
-        );
-        request.add("tokenId", tokenId.toString());
+    require(!requestPending[sender], "Sender already has a pending request");
 
-        bytes32 requestId = sendChainlinkRequestTo(oracle, request, fee);
-        requests[requestId] = Request(sender, tokenId);
-        requestPending[sender] = true;
+    Chainlink.Request memory request = buildChainlinkRequest(
+      jobId,
+      sender,
+      this.fulfill.selector
+    );
+    request.add("tokenId", tokenId.toString());
 
-        return requestId;
-    }
+    bytes32 requestId = sendChainlinkRequestTo(oracle, request, fee);
+    requests[requestId] = Request(sender, tokenId);
+    requestPending[sender] = true;
 
-    /**
-     * @dev Fulfills the Chainlink request and reserves the tokenId.
-     * @param requestId The Chainlink request ID.
-     */
-    function fulfill(bytes32 requestId) public {
-        Request storage request = requests[requestId];
+    return requestId;
+  }
 
-        // TODO: Add validator before minting the token. Only the sender should be able to mint!
-        owners[request.tokenId] = msg.sender;
-        fulfills += 1;
+  function fulfill(bytes32 requestId) public {
+    Request storage request = requests[requestId];
 
-        delete requestPending[request.sender];
-    }
+    // TODO: Add validator before minting the token. Only the sender should be able to mint!
+    owners[request.tokenId] = msg.sender;
+    fulfills += 1;
 
-    /**
-     * @dev Checks if a tokenId is reserved.
-     * @param tokenId The tokenId to check.
-     * @return true if the tokenId is reserved, false otherwise.
-     */
-    function isReserved(uint256 tokenId) public view returns (bool) {
-        return reserved[tokenId];
-    }
+    delete requestPending[request.sender];
+  }
 
-    /**
-     * @dev Reserves a tokenId.
-     * @param tokenId The tokenId to be reserved.
-     * @return true if the tokenId is successfully reserved.
-     */
-    function Reserve(uint256 tokenId) public returns (bool) {
-        // bytes32 reqID = verify(tokenId);
-        bytes32 fake_reqID = 0x0000000000000000000000000000000000000000000000000000000000000000;
-        fulfill(fake_reqID);
-        reserved[tokenId] = true;
-        assetPrice[tokenId] = uint (keccak256(abi.encodePacked (msg.sender, block.timestamp, randNo))); 
-        return true;
-    }
 
-    /**
-     * @dev Gets the owner address of a tokenId.
-     * @param tokenId The tokenId to check.
-     * @return The address of the tokenId owner.
-     */
-    function ownerOf(uint256 tokenId) public view returns (address) {
-        return owners[tokenId];
-    }
+  function isReserved(uint256 tokenId) public view returns (bool) {
+    return reserved[tokenId];
+  }
 
-    function getAssetPricing(uint256 tokenId) view  public returns(uint256){
+  function Reserve(uint256 tokenId) public checkBalance(msg.sender) returns(bool){
+    // bytes32 reqID = verify(tokenId);
+    bytes32 fake_reqID = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    fulfill(fake_reqID);
+    reserved[tokenId] = true;
+    assetPrice[tokenId] = uint (keccak256(abi.encodePacked (msg.sender, block.timestamp, randNo))); 
+    return true;
+  }
+
+  function ownerOf(uint256 tokenId) public view returns (address) {
+    return owners[tokenId];
+  }
+
+  function getAssetPring(uint256 tokenId) view  public returns(uint256){
     return assetPrice[tokenId];
   } 
 
-
-    /**
-     * @dev Converts a string to bytes32.
-     * @param source The string to convert.
-     * @return result The bytes32 representation of the string.
-     */
-    function stringToBytes32(
-        string memory source
-    ) private pure returns (bytes32 result) {
-        bytes memory tempEmptyStringTest = bytes(source);
-        if (tempEmptyStringTest.length == 0) {
-            return 0x0;
-        }
-
-        assembly {
-            // solhint-disable-line no-inline-assembly
-            result := mload(add(source, 32))
-        }
+  function stringToBytes32(string memory source) private pure returns (bytes32 result) {
+    bytes memory tempEmptyStringTest = bytes(source);
+    if (tempEmptyStringTest.length == 0) {
+      return 0x0;
     }
+
+    assembly { // solhint-disable-line no-inline-assembly
+      result := mload(add(source, 32))
+    }
+  }
 }
+
