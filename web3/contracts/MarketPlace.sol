@@ -17,6 +17,8 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         // Address of the Matic contract.
     Matic matic;
 
+    uint256 orderIdCounter;
+
     /**
      * @dev Struct representing a listed token.
      */    
@@ -27,10 +29,11 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         uint256 price;
     }
 
-    // Mapping from token ID to listed tokens
+    // Mapping from order ID to listed tokens
     mapping(uint256 => ListedToken) public listedTokens;
 
     event TokenListed(
+        uint256 indexed orderId,
         uint256 indexed tokenId,
         address indexed seller,
         uint256 amount,
@@ -38,20 +41,21 @@ contract MarketPlace is Ownable, ReentrancyGuard {
     );
 
     // Event emitted when a token is removed from sale
-    event TokenRemovedFromSale(uint256 indexed tokenId);
+    event TokenRemovedFromSale(uint256 indexed orderId);
 
     // Event emitted when the ownership of a token is transferred after a purchase
     event TokenSold(
+        uint256 indexed orderId,
         uint256 indexed tokenId,
         address indexed from,
-        address indexed to,
+        address to,
         uint256 amount
     );
 
     // Modifier to ensure that only the seller can perform certain actions
-    modifier onlySeller(uint256 tokenId) {
-        require(listedTokens[tokenId].seller == msg.sender, "Not the seller");
-        _;
+    modifier onlySeller(uint256 orderId) {
+        require(listedTokens[orderId].seller == msg.sender, "Not the seller");
+        _; 
     }
 
     /**
@@ -89,46 +93,49 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         );
         // Approve the marketplace contract to transfer the tokens
         // fractionalizedNFT.approve(tokenId, address(this), amount);
-
-        listedTokens[tokenId] = ListedToken({
+        uint orderId = orderIdCounter;
+        listedTokens[orderIdCounter] = ListedToken({
             seller: msg.sender,
             tokenId: tokenId,
             amount: amount,
             price: price
         });
+        orderIdCounter++;
 
-        emit TokenListed(tokenId, msg.sender, amount, price);
+        emit TokenListed(orderId, tokenId, msg.sender, amount, price);
     }
 
     /**
      * @dev Function to remove a token from sale.
-     * @param tokenId ID of the token to be removed from sale.
+     * @param orderId ID of the order to be removed.
      */
     function removeTokenFromSale(
-        uint256 tokenId
-    ) external nonReentrant onlySeller(tokenId) {
-        delete listedTokens[tokenId];
+        uint256 orderId
+    ) external nonReentrant onlySeller(orderId) {
+        delete listedTokens[orderId];
 
         // Remove the approval
         // fractionalizedNFT.removeApproval(address(this), tokenId);
 
-        emit TokenRemovedFromSale(tokenId);
+        emit TokenRemovedFromSale(orderId);
     }
 
     /**
      * @dev Function to buy a token.
+     * @param orderId ID of the order.
      * @param tokenId ID of the token to be bought.
      * @param amount Amount of the token to be bought.
      * @param data Additional data for the token transfer.
      */
     function buyToken(
+        uint256 orderId,
         uint256 tokenId,
         uint256 amount,
         bytes memory data
     ) external nonReentrant {
         require(amount > 0, "Amount must be greater than zero");
 
-        ListedToken storage listedToken = listedTokens[tokenId];
+        ListedToken storage listedToken = listedTokens[orderId];
         require(
             listedToken.amount >= amount,
             "Not enough tokens available for sale"
@@ -157,12 +164,12 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         // Update the listed token
         listedToken.amount -= amount;
 
-        emit TokenSold(tokenId, listedToken.seller, msg.sender, amount);
+        emit TokenSold(orderId, tokenId, listedToken.seller, msg.sender, amount);
 
         // Remove the token from sale if the seller has no remaining tokens
         if (listedToken.amount == 0) {
-            delete listedTokens[tokenId];
-            emit TokenRemovedFromSale(tokenId);
+            delete listedTokens[orderId];
+            emit TokenRemovedFromSale(orderId);
         }
     }
 
