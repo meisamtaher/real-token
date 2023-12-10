@@ -62,7 +62,11 @@ Retrieves the user's MATIC balance using the Chainlink AggregatorV3Interface.
 - **Hardhat**
 - **ReactJS**
 - **Chainlink**
-- ... (Add any other relevant technologies)
+- **IPFS**
+
+## Networks
+- **Polygon mumbai**
+- **Polygon zkEVM**
 
 ## Getting Started
 
@@ -99,6 +103,7 @@ Narpet revolutionizes the NFT space by bridging the digital and physical worlds,
 
 ## Authors
 - [@Hooman (DMind) Dehghani](https://www.github.com/itsDMind)
+- [@Mahdieh-amiri1](https://www.github.com/mahdieh-amiri1)
 
 
 ## Demo Website 
