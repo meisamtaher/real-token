@@ -7,7 +7,7 @@ async function main() {
   console.log(`Reserver deployed to: ${reserver.target}`)
 
 
-  const fractionalizedNFT = await hre.ethers.deployContract("FractionalizedNFT", [deployer.address, reserver.target, "https://example-uri/"])
+  const fractionalizedNFT = await hre.ethers.deployContract("FractionalizedNFT", [deployer.address, reserver.target, "https://ipfs/"])
   console.log(`FractionalizedNFT deployed to: ${fractionalizedNFT.target}`)
 
   // let totalSupply = hre.ethers.parseEther(1_000_000);
