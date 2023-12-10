@@ -116,6 +116,8 @@ contract FractionalizedNFT is
         if (reservable) {
             require(reserver.isReserved(tokenId), "Asset is not reserved yet");
         }
+        require(owners[tokenId].length == 0, "Invalid token ID");
+
         _mint(account, tokenId, MAX_TOKEN_AMOUNT, data);
         metadatas[tokenId] = metadata;
         // totalAmount[tokenId] = amount;
@@ -346,6 +348,12 @@ contract FractionalizedNFT is
         address operator
     ) public view returns (uint256) {
         return approvedAmounts[tokenId].allowances[operator];
+    }
+
+    function uri(uint256 tokenId) public view override returns (string memory) {
+        string memory _uri = super.uri(0);
+        string memory _cid = metadatas[tokenId];
+        return string(abi.encodePacked(_uri, _cid));
     }
 
     /**
