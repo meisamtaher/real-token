@@ -2,9 +2,9 @@
 
 # Table of Contents
 1. [Overview](#overview)
-2. [Project Highlights](#project-highlights)
+2. [Architecture Diagram](#architecture-diagram)
 3. [Project Flow](#project-flow)
-4. [Architecture Diagram](#architecture-diagram)
+4. [Project Highlights](#project-highlights)
 5. [Contracts](#contracts)
     - [1. FractionalizedNFT.sol](#1-fractionalizednftsol)
     - [2. MarketPlace.sol](#2-marketplacesol)
@@ -20,18 +20,9 @@
 
 Narpet, short for NFT Carpet, is a groundbreaking project that introduces fractionalized NFTs representing real-world assets. The platform facilitates the minting of NFTs backed by tangible assets, such as carpets, allowing users to fractionalize and trade ownership shares on the Narpet marketplace. This project leverages the power of blockchain technology and smart contracts to create a unique ecosystem. The off-chain proof of reserve process ensures the authenticity of the underlying assets.
 
+## Architecture Diagram
 
-## Project Highlights
-
-- **Fractionalized Ownership:** Mint NFTs representing real-world assets and own fractional shares of these assets on the blockchain.
-
-- **Off-Chain Proof of Reserve:** Utilize a reserve mechanism, involving Chainlink oracles, to verify the presence of physical assets tied to the NFTs.
-
-- **Reserver Entities:** Users can approach reserver entities, to store their tangible assets securely.
-
-- **Marketplace:** Trade fractionalized ownership shares in the marketplace, allowing users to buy or sell ownership stakes in real-world assets.
-
-- **Chainlink Integration:** Leverage Chainlink oracles to ensure users' adherence to asset reserve requirements and verify wallet balances.
+![image](https://github.com/meisamtaher/real-token/assets/99467399/53d9ef43-94ab-44a2-b3b4-31691da4f441)
 
 
 ## Project Flow
@@ -50,9 +41,39 @@ Narpet, short for NFT Carpet, is a groundbreaking project that introduces fracti
 
 7. **Asset Redemption:** Token owners can redeem the tangible asset by burning their tokens.
 
-## Architecture Diagram
 
-![image](https://github.com/meisamtaher/real-token/assets/99467399/53d9ef43-94ab-44a2-b3b4-31691da4f441)
+## Project Highlights
+
+- **Fractionalized Ownership:** Mint NFTs representing real-world assets and own fractional shares of these assets on the blockchain.
+
+- [**Off-Chain Proof of Reserve:**](#proof-of-reserve) Utilize a reserve mechanism, involving Chainlink oracles, to verify the presence of physical assets tied to the NFTs.
+
+- **Reserver Entities:** Users can approach reserver entities, to store their tangible assets securely.
+
+- **Marketplace:** Trade fractionalized ownership shares in the marketplace, allowing users to buy or sell ownership stakes in real-world assets.
+
+- **Chainlink Integration:** Leverage Chainlink oracles to ensure users' adherence to asset reserve requirements and verify wallet balances.
+
+
+
+## Proof of Reserve
+
+  Proof of Reserve is a critical component of Narpet's functionality. It ensures that the carpet represented as an NFT on the platform is backed by a corresponding physical carpet in the real world. This mechanism provides transparency and trust to users, as they can verify the existence and authenticity of the physical carpet associated with the NFT.
+
+### Reserver Contract
+
+  The Reserver Contract is a smart contract within Narpet responsible for validating the existence of a carpet and retrieving its value from the Chainlink network. Here's how it works:
+
+  1. Verification with Chainlink Network: The Reserver Contract communicates with the Chainlink network to verify whether the specified carpet exists or not. Chainlink provides a decentralized oracle network that supplies accurate and reliable off-chain data, ensuring the authenticity of the carpet information.
+
+  2. Fetching Carpet Value: Once the existence of the carpet is confirmed, the Reserver Contract retrieves its value from the Chainlink network's price feed. This dynamic pricing mechanism ensures that the NFT's value is up-to-date and reflects the market value of the underlying physical carpet.
+
+  By integrating the Reserver Contract with Chainlink, Narpet ensures a robust and tamper-proof system for linking NFTs to real-world assets, enhancing the overall trustworthiness of the platform.
+
+  In addition to the Reserver Contract, Narpet features the <b> WalletBalance Contract</b> to control minting eligibility. This contract checks the wallet balance associated with a given address and allows minting of NFTs only if the wallet holds at least 100 Matic tokens. This adds an additional layer of security and ensures that users have sufficient funds to participate in the fractional ownership of carpets on the Narpet platform.
+
+
+
 
 
 ## Contracts
@@ -104,23 +125,6 @@ Narpet revolutionizes the NFT space by bridging the digital and physical worlds,
 
 
 
-
-
-## Proof of Reserve
-
-  Proof of Reserve is a critical component of Narpet's functionality. It ensures that the carpet represented as an NFT on the platform is backed by a corresponding physical carpet in the real world. This mechanism provides transparency and trust to users, as they can verify the existence and authenticity of the physical carpet associated with the NFT.
-
-### Reserver Contract
-
-  The Reserver Contract is a smart contract within Narpet responsible for validating the existence of a carpet and retrieving its value from the Chainlink network. Here's how it works:
-
-  1. Verification with Chainlink Network: The Reserver Contract communicates with the Chainlink network to verify whether the specified carpet exists or not. Chainlink provides a decentralized oracle network that supplies accurate and reliable off-chain data, ensuring the authenticity of the carpet information.
-
-  2. Fetching Carpet Value: Once the existence of the carpet is confirmed, the Reserver Contract retrieves its value from the Chainlink network's price feed. This dynamic pricing mechanism ensures that the NFT's value is up-to-date and reflects the market value of the underlying physical carpet.
-
-  By integrating the Reserver Contract with Chainlink, Narpet ensures a robust and tamper-proof system for linking NFTs to real-world assets, enhancing the overall trustworthiness of the platform.
-
-  In addition to the Reserver Contract, Narpet features the <b> WalletBalance Contract</b> to control minting eligibility. This contract checks the wallet balance associated with a given address and allows minting of NFTs only if the wallet holds at least 100 Matic tokens. This adds an additional layer of security and ensures that users have sufficient funds to participate in the fractional ownership of carpets on the Narpet platform.
 
 ## Authors
 - [@Hooman (DMind) Dehghani](https://www.github.com/itsDMind)
