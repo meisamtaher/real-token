@@ -52,6 +52,7 @@ Narpet, short for NFT Carpet, is a groundbreaking project that introduces fracti
 
 ## Architecture Diagram
 
+![image](https://github.com/meisamtaher/real-token/assets/99467399/53d9ef43-94ab-44a2-b3b4-31691da4f441)
 
 
 ## Contracts
