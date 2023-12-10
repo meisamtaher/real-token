@@ -8,6 +8,7 @@ import {MarketPlaceContractAddress} from '../constants/constants';
 import {ethers} from 'ethers'
  
 import { ListedNFT } from '../interfaces/types';
+import { uint256toCid } from '../utils/cidConvert';
 
 function Explore() {
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ function Explore() {
         return myContract.interface.parseLog(parseableLog);
       });
       console.log(parsedLogs)
+      return parsedLogs;
     } catch (error) {
       console.error("Error fetching events: ", error);
     }
@@ -45,79 +47,90 @@ function Explore() {
   const [NFTs, setNFTs] = useState<ListedNFT[] | undefined>();
   const getListedNFTs = async() =>{
     console.log("Trying to fetch all Listed NFTs... ");
-    getPastEvents();
-    setNFTs([
-        {
-            name:"Modern Carpet 25",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
-            address: "0x7698",
-            price: 1.1,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 27",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
-            address: "0xsdf23",
-            price: 1.7,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 25",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
-            address: "0x7698",
-            price: 1.1,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 27",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
-            address: "0xsdf23",
-            price: 1.7,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 25",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
-            address: "0x7698",
-            price: 1.1,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 27",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
-            address: "0xsdf23",
-            price: 1.7,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 25",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
-            address: "0x7698",
-            price: 1.1,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 27",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
-            address: "0xsdf23",
-            price: 1.7,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 25",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
-            address: "0x7698",
-            price: 1.1,
-            price_token: "ETH",
-        },
-        {
-            name:"Modern Carpet 27",
-            img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
-            address: "0xsdf23",
-            price: 1.7,
-            price_token: "ETH",
-        }
-    ])
+    const listedTokens = await getPastEvents();
+    const cids = listedTokens?.map((token)=>{return uint256toCid(token?.args[0]);})
+    const promises = cids?.map(async(cid:string)=>{const metadata = await fetch(import.meta.env.VITE_PINATA_GET_URL + cid); return await metadata.json();})
+    var metadatas;
+    const nfts:ListedNFT[] = [];
+    if(promises){
+      metadatas = await Promise.all(promises);
+      for(var i=0;i<metadatas.length;i++){
+        nfts.push({name:metadatas[i].name, img:metadatas[i].image, tokenId:listedTokens?.[i]?.args[0], price:listedTokens?.[i]?.args[3], price_token:"Matic"})
+      }
+    }
+    setNFTs(nfts);
+    // setNFTs([
+    //     {
+    //         name:"Modern Carpet 25",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
+    //         address: "0x7698",
+    //         price: 1.1,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 27",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
+    //         address: "0xsdf23",
+    //         price: 1.7,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 25",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
+    //         address: "0x7698",
+    //         price: 1.1,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 27",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
+    //         address: "0xsdf23",
+    //         price: 1.7,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 25",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
+    //         address: "0x7698",
+    //         price: 1.1,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 27",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
+    //         address: "0xsdf23",
+    //         price: 1.7,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 25",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
+    //         address: "0x7698",
+    //         price: 1.1,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 27",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
+    //         address: "0xsdf23",
+    //         price: 1.7,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 25",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmNeLLephRJ6zo2AmbcBxQ1iVFv1BDVMscQeZ6FLCvpQuq?_gl=1*1v30ko4*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA3OC4xNS4wLjA.",
+    //         address: "0x7698",
+    //         price: 1.1,
+    //         price_token: "ETH",
+    //     },
+    //     {
+    //         name:"Modern Carpet 27",
+    //         img: "https://green-enthusiastic-mite-198.mypinata.cloud/ipfs/QmfQvxw2uEsCjHLbm11292Lqp24qUFhR469K35EBRuywzb?_gl=1*x2wtze*_ga*MTc0MDczMTUxNS4xNzAxNjg3OTQ3*_ga_5RMPXG14TE*MTcwMTY4Nzk1MS4xLjEuMTcwMTY4ODA4OS40LjAuMA..",
+    //         address: "0xsdf23",
+    //         price: 1.7,
+    //         price_token: "ETH",
+    //     }
+    // ])
   };
   useEffect(()=>{
     getListedNFTs();
@@ -127,7 +140,7 @@ function Explore() {
     {NFTs?.map((NFT) =>(
       // <Item>
       <Grid item>
-        <NFTCard NFT={NFT} onClick={()=>handleNFTClick(NFT.address)}/>
+        <NFTCard NFT={NFT} onClick={()=>handleNFTClick(NFT.tokenId)}/>
       </Grid>
       // </Item>
     ))}

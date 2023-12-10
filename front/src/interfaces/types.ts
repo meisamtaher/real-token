@@ -9,7 +9,7 @@ export interface OwnedNFTProp{
 export interface ListedNFT{
     name: string,
     img: string,
-    address: string,
+    tokenId: string
     price: number,
     price_token: string,
 }

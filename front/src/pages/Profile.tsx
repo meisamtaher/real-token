@@ -47,7 +47,7 @@ function Profile() {
     getPrfileDetails();
   },[ProfileId]);
   function handleNFTClick(tokenId: any) {
-
+    console.log(tokenId);
   }
   return (
     <Grid container padding={5} direction="row" spacing={5} justifyContent={'center'} alignItems={'flex-start'}>
