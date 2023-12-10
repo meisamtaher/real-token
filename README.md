@@ -1,5 +1,21 @@
 # Narpet - Fractional NFT Standard and Marketplace for Real-World Assets
 
+# Table of Contents
+1. [Overview](#overview)
+2. [Project Highlights](#project-highlights)
+3. [Project Flow](#project-flow)
+4. [Architecture Diagram](#architecture-diagram)
+5. [Contracts](#contracts)
+    - [1. FractionalizedNFT.sol](#1-fractionalizednftsol)
+    - [2. MarketPlace.sol](#2-marketplacesol)
+    - [3. Reserver.sol](#3-reserversol)
+    - [4. PriceConsumerV3.sol](#4-priceconsumerv3sol)
+    - [5. WalletBalance.sol](#5-walletbalancesol)
+6. [Technologies Used](#technologies-used)
+7. [Getting Started](#getting-started)
+8. [Conclusion](#conclusion)
+9. [What's Next for Narpet](#whats-next-for-narpet)
+
 ## Overview
 
 Narpet, short for NFT Carpet, is a groundbreaking project that introduces fractionalized NFTs representing real-world assets. The platform facilitates the minting of NFTs backed by tangible assets, such as carpets, allowing users to fractionalize and trade ownership shares on the Narpet marketplace. This project leverages the power of blockchain technology and smart contracts to create a unique ecosystem. The off-chain proof of reserve process ensures the authenticity of the underlying assets.
@@ -33,6 +49,10 @@ Narpet, short for NFT Carpet, is a groundbreaking project that introduces fracti
 6. **Ownership Transfer:** Ownership of fractional shares can be transferred between users, facilitating a dynamic marketplace for real-world asset ownership.
 
 7. **Asset Redemption:** Token owners can redeem the tangible asset by burning their tokens.
+
+## Architecture Diagram
+
+
 
 ## Contracts
 
