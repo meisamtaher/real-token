@@ -16,15 +16,16 @@
 8. [Conclusion](#conclusion)
 9. [What's Next for Narpet](#whats-next-for-narpet)
 
+***
 ## Overview
 
 Narpet, short for NFT Carpet, is a groundbreaking project that introduces fractionalized NFTs representing real-world assets. The platform facilitates the minting of NFTs backed by tangible assets, such as carpets, allowing users to fractionalize and trade ownership shares on the Narpet marketplace. This project leverages the power of blockchain technology and smart contracts to create a unique ecosystem. The off-chain proof of reserve process ensures the authenticity of the underlying assets.
-
+***
 ## Architecture Diagram
 
 ![image](https://github.com/meisamtaher/real-token/assets/99467399/53d9ef43-94ab-44a2-b3b4-31691da4f441)
 
-
+***
 ## Project Flow
 
 1. **Asset Upload:** Users visit the Narpet website, upload asset details, and request the minting of an NFT tied to the asset.
@@ -41,7 +42,7 @@ Narpet, short for NFT Carpet, is a groundbreaking project that introduces fracti
 
 7. **Asset Redemption:** Token owners can redeem the tangible asset by burning their tokens.
 
-
+***
 ## Project Highlights
 
 - **Fractionalized Ownership:** Mint NFTs representing real-world assets and own fractional shares of these assets on the blockchain.
@@ -56,11 +57,11 @@ Narpet, short for NFT Carpet, is a groundbreaking project that introduces fracti
 
 
 
-## Proof of Reserve
+### Proof of Reserve
 
   Proof of Reserve is a critical component of Narpet's functionality. It ensures that the carpet represented as an NFT on the platform is backed by a corresponding physical carpet in the real world. This mechanism provides transparency and trust to users, as they can verify the existence and authenticity of the physical carpet associated with the NFT.
 
-### Reserver Contract
+#### Reserver Contract
 
   The Reserver Contract is a smart contract within Narpet responsible for validating the existence of a carpet and retrieving its value from the Chainlink network. Here's how it works:
 
@@ -75,7 +76,7 @@ Narpet, short for NFT Carpet, is a groundbreaking project that introduces fracti
 
 
 
-
+***
 ## Contracts
 
 ### 1. FractionalizedNFT.sol
@@ -97,7 +98,7 @@ Fetches the MATIC/USD price using the Chainlink AggregatorV3Interface.
 ### 5. WalletBalance.sol
 
 Retrieves the user's MATIC balance using the Chainlink AggregatorV3Interface.
-
+***
 ## Technologies Used
 
 - **Solidity**
@@ -105,19 +106,19 @@ Retrieves the user's MATIC balance using the Chainlink AggregatorV3Interface.
 - **ReactJS**
 - **Chainlink**
 - **IPFS**
-
+***
 ## Networks
 - **Polygon mumbai**
 - **Polygon zkEVM**
-
+***
 ## Getting Started
 
 (Provide instructions on how to set up and deploy the contracts, run the frontend, and interact with the Narpet platform.)
-
+***
 ## Conclusion
 
 Narpet revolutionizes the NFT space by bridging the digital and physical worlds, allowing users to own and trade fractions of real-world assets on the blockchain. The project introduces a new dimension to NFT utility and liquidity.
-
+***
 ## What's Next for Narpet
 
 (Describe future plans, potential features, or improvements for the Narpet project.)
@@ -125,8 +126,8 @@ Narpet revolutionizes the NFT space by bridging the digital and physical worlds,
 
 
 
-
-## Authors
+***
+## Team
 - [@Hooman (DMind) Dehghani](https://www.github.com/itsDMind)
 - [@Mahdieh-amiri1](https://www.github.com/mahdieh-amiri1)
 
