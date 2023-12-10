@@ -37,6 +37,12 @@ module.exports = {
       chainId: 80001,
       accounts: [process.env.PRIVATE_KEY],
     },
+    zkEVM: {
+      url: process.env.ZKEVM_TESTNET_RPC || "https://rpc.public.zkevm-test.net",
+      chainId: 1442,
+      accounts: [process.env.PRIVATE_KEY],
+      },
+
   },
   etherscan: {
     apiKey: process.env.POLYGONSCAN_API_KEY,

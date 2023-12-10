@@ -109,25 +109,6 @@ _Mint a new token with a specific amount as totalAmount_
 | reservable | bool | Boolean indicating whether the token is related to a reservable asset |
 | data | bytes | Additional data for minting |
 
-### mintBatch
-
-```solidity
-function mintBatch(address account, uint8 count, uint256[] tokenId, string[] metadata, bool reservable, bytes data) external
-```
-
-_Mint multiple tokens in a batch_
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| account | address | Address to receive the minted tokens |
-| count | uint8 | Number of tokens to mint |
-| tokenId | uint256[] | Array of token IDs to be minted |
-| metadata | string[] | Array of metadata associated with the tokens |
-| reservable | bool | Boolean indicating whether each token is related to a reservable asset |
-| data | bytes | Additional data for minting |
-
 ### approve
 
 ```solidity
@@ -214,6 +195,26 @@ _Get the metadata associated with a token_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | string | Metadata string |
+
+### getReserverPricingUSD
+
+```solidity
+function getReserverPricingUSD(uint256 tokenId) external view returns (uint256)
+```
+
+_Get the reserver USD pricing for each token fraction_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tokenId | uint256 | ID of the token |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint256 | Price of the token in USD |
 
 ### getOwnershipAmount
 
@@ -453,6 +454,18 @@ contract FractionalizedNFT fractionalizedNFT
 contract Matic matic
 ```
 
+### priceConsumerV3
+
+```solidity
+contract PriceConsumerV3 priceConsumerV3
+```
+
+### orderIdCounter
+
+```solidity
+uint256 orderIdCounter
+```
+
 ### ListedToken
 
 _Struct representing a listed token._
@@ -466,34 +479,40 @@ struct ListedToken {
 }
 ```
 
+### listedTokens
+
+```solidity
+mapping(uint256 => struct MarketPlace.ListedToken) listedTokens
+```
+
 ### TokenListed
 
 ```solidity
-event TokenListed(uint256 tokenId, address seller, uint256 amount, uint256 price)
+event TokenListed(uint256 orderId, uint256 tokenId, address seller, uint256 amount, uint256 price)
 ```
 
 ### TokenRemovedFromSale
 
 ```solidity
-event TokenRemovedFromSale(uint256 tokenId)
+event TokenRemovedFromSale(uint256 orderId)
 ```
 
 ### TokenSold
 
 ```solidity
-event TokenSold(uint256 tokenId, address from, address to, uint256 amount)
+event TokenSold(uint256 orderId, uint256 tokenId, address from, address to, uint256 amount)
 ```
 
 ### onlySeller
 
 ```solidity
-modifier onlySeller(uint256 tokenId)
+modifier onlySeller(uint256 orderId)
 ```
 
 ### constructor
 
 ```solidity
-constructor(address _fractionalizedNFT, address _matic) public
+constructor(address _fractionalizedNFT, address _matic, address _priceConsumerV3) public
 ```
 
 _Constructor function to initialize the marketplace._
@@ -504,6 +523,7 @@ _Constructor function to initialize the marketplace._
 | ---- | ---- | ----------- |
 | _fractionalizedNFT | address | Address of the FractionalizedNFT contract. |
 | _matic | address | Address of the Matic contract. |
+| _priceConsumerV3 | address | Address of the Matic contract. |
 
 ### listTokenForSale
 
@@ -521,10 +541,30 @@ _Function to list a token for sale._
 | amount | uint256 | Amount of the fractions to be listed. |
 | price | uint256 | Price per unit of the token. |
 
+### getReserverPricingMatic
+
+```solidity
+function getReserverPricingMatic(uint256 tokenId) external view returns (uint256)
+```
+
+_Get the token reserver pricing in Matic equivalent_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tokenId | uint256 | ID of the token |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint256 | Price of the token in Matic |
+
 ### removeTokenFromSale
 
 ```solidity
-function removeTokenFromSale(uint256 tokenId) external
+function removeTokenFromSale(uint256 orderId) external
 ```
 
 _Function to remove a token from sale._
@@ -533,12 +573,12 @@ _Function to remove a token from sale._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| tokenId | uint256 | ID of the token to be removed from sale. |
+| orderId | uint256 | ID of the order to be removed. |
 
 ### buyToken
 
 ```solidity
-function buyToken(uint256 tokenId, uint256 amount, bytes data) external
+function buyToken(uint256 orderId, uint256 tokenId, uint256 amount, bytes data) external
 ```
 
 _Function to buy a token._
@@ -547,6 +587,7 @@ _Function to buy a token._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| orderId | uint256 | ID of the order. |
 | tokenId | uint256 | ID of the token to be bought. |
 | amount | uint256 | Amount of the token to be bought. |
 | data | bytes | Additional data for the token transfer. |
@@ -629,6 +670,44 @@ _Should burn user's tokens. This transaction will be verified when exiting on ro
 | ---- | ---- | ----------- |
 | amount | uint256 | amount of tokens to withdraw |
 
+## PriceConsumerV3
+
+### priceFeed
+
+```solidity
+contract AggregatorV3Interface priceFeed
+```
+
+### constructor
+
+```solidity
+constructor() public
+```
+
+Network: Mumbai Testnet
+Aggregator: MATIC/USD
+Address: 0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada
+
+### getLatestPrice
+
+```solidity
+function getLatestPrice() public view returns (int256)
+```
+
+Returns the latest price
+
+### getDecimals
+
+```solidity
+function getDecimals() public view returns (uint8)
+```
+
+### getUSDToMatic
+
+```solidity
+function getUSDToMatic(uint256 _usd, uint8 _usdDecimals) public view returns (uint256)
+```
+
 ## Reserver
 
 _A contract for reserving NFTs using Chainlink Proof of Reserve._
@@ -649,6 +728,12 @@ bytes32 jobId
 
 ```solidity
 uint256 fee
+```
+
+### randNo
+
+```solidity
+uint256 randNo
 ```
 
 ### Request
@@ -688,6 +773,12 @@ mapping(address => bool) requestPending
 
 ```solidity
 mapping(uint256 => bool) reserved
+```
+
+### assetPrice
+
+```solidity
+mapping(uint256 => uint256) assetPrice
 ```
 
 ### constructor
@@ -806,6 +897,12 @@ _Gets the owner address of a tokenId._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | address | The address of the tokenId owner. |
+
+### getAssetPricing
+
+```solidity
+function getAssetPricing(uint256 tokenId) public view returns (uint256)
+```
 
 ## Lock
 

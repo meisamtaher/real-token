@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Matic} from "./Mocks/Matic.sol";
 import {FractionalizedNFT} from "./FractionalizedNFT.sol";
-
+import {PriceConsumerV3} from "./PriceConsumerV3.sol";
 /**
  * @title MarketPlace
  * @dev A marketplace contract for buying and selling fractionalized NFTs.
@@ -14,14 +14,16 @@ import {FractionalizedNFT} from "./FractionalizedNFT.sol";
 contract MarketPlace is Ownable, ReentrancyGuard {
     // Address of the FractionalizedNFT contract.
     FractionalizedNFT fractionalizedNFT;
-        // Address of the Matic contract.
+    // Address of the Matic contract.
     Matic matic;
+
+    PriceConsumerV3 priceConsumerV3;
 
     uint256 orderIdCounter;
 
     /**
      * @dev Struct representing a listed token.
-     */    
+     */
     struct ListedToken {
         address seller;
         uint256 tokenId;
@@ -55,21 +57,24 @@ contract MarketPlace is Ownable, ReentrancyGuard {
     // Modifier to ensure that only the seller can perform certain actions
     modifier onlySeller(uint256 orderId) {
         require(listedTokens[orderId].seller == msg.sender, "Not the seller");
-        _; 
+        _;
     }
 
     /**
      * @dev Constructor function to initialize the marketplace.
      * @param _fractionalizedNFT Address of the FractionalizedNFT contract.
      * @param _matic Address of the Matic contract.
+     * @param _priceConsumerV3 Address of the Matic contract.
      */
     constructor(
         address _fractionalizedNFT,
-        address _matic
+        address _matic, 
+        address _priceConsumerV3
     ) Ownable(msg.sender) {
         fractionalizedNFT = FractionalizedNFT(_fractionalizedNFT);
         matic = Matic(_matic);
-    }
+        priceConsumerV3 = PriceConsumerV3(_priceConsumerV3);
+    } 
 
     /**
      * @dev Function to list a token for sale.
@@ -103,6 +108,17 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         orderIdCounter++;
 
         emit TokenListed(orderId, tokenId, msg.sender, amount, price);
+    }
+
+    /**
+     * @dev Get the token reserver pricing in Matic equivalent
+     * @param tokenId ID of the token
+     * @return Price of the token in Matic
+     */
+    function getReserverPricingMatic(uint256 tokenId) external view returns(uint256){
+        uint256 _USDPrice = fractionalizedNFT.getReserverPricingUSD(tokenId); // 6 decimals
+        uint256 _matics = priceConsumerV3.getUSDToMatic(_USDPrice, 6);
+        return _matics;
     }
 
     /**
@@ -164,7 +180,13 @@ contract MarketPlace is Ownable, ReentrancyGuard {
         // Update the listed token
         listedToken.amount -= amount;
 
-        emit TokenSold(orderId, tokenId, listedToken.seller, msg.sender, amount);
+        emit TokenSold(
+            orderId,
+            tokenId,
+            listedToken.seller,
+            msg.sender,
+            amount
+        );
 
         // Remove the token from sale if the seller has no remaining tokens
         if (listedToken.amount == 0) {

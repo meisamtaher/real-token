@@ -16,6 +16,7 @@ contract Reserver is ChainlinkClient, Ownable {
     address public oracle;
     bytes32 public jobId;
     uint256 public fee;
+    uint randNo = 1132;
 
     struct Request {
         address sender;
@@ -28,6 +29,7 @@ contract Reserver is ChainlinkClient, Ownable {
 
     mapping(address => bool) public requestPending;
     mapping(uint256 => bool) public reserved;
+    mapping(uint256 => uint256) public assetPrice;
 
     constructor() Ownable(msg.sender) {}
 
@@ -110,6 +112,7 @@ contract Reserver is ChainlinkClient, Ownable {
         bytes32 fake_reqID = 0x0000000000000000000000000000000000000000000000000000000000000000;
         fulfill(fake_reqID);
         reserved[tokenId] = true;
+        assetPrice[tokenId] = uint (keccak256(abi.encodePacked (msg.sender, block.timestamp, randNo))); 
         return true;
     }
 
@@ -121,6 +124,11 @@ contract Reserver is ChainlinkClient, Ownable {
     function ownerOf(uint256 tokenId) public view returns (address) {
         return owners[tokenId];
     }
+
+    function getAssetPricing(uint256 tokenId) view  public returns(uint256){
+    return assetPrice[tokenId];
+  } 
+
 
     /**
      * @dev Converts a string to bytes32.

@@ -33,8 +33,10 @@ contract FractionalizedNFT is
     // Contract instances
     Reserver private reserver;
 
-    // Token ID to Metadata
+    // Token ID to metadata
     mapping(uint256 => string) private metadatas;
+    // Token ID to reserver pricing of real-world asset in USD for each fraction of the token
+    mapping(uint256 => uint256) private reserverPricingUSD;
 
     // Ownership and ownership related mappings
     // Token ID to percentage ownership mapping
@@ -113,10 +115,12 @@ contract FractionalizedNFT is
         bool reservable,
         bytes memory data
     ) external /*onlyRole(MINTER_ROLE)*/ {
+        require(owners[tokenId].length == 0, "Invalid token ID");
+
         if (reservable) {
             require(reserver.isReserved(tokenId), "Asset is not reserved yet");
+            reserverPricingUSD[tokenId] = reserver.getAssetPricing(tokenId);
         }
-        require(owners[tokenId].length == 0, "Invalid token ID");
 
         _mint(account, tokenId, MAX_TOKEN_AMOUNT, data);
         metadatas[tokenId] = metadata;
@@ -125,47 +129,6 @@ contract FractionalizedNFT is
         owners[tokenId].push(account);
         ownedTokens[account].push(tokenId);
         emit TokenMinted(tokenId, account);
-    }
-
-    /**
-     * @dev Mint multiple tokens in a batch
-     * @param account Address to receive the minted tokens
-     * @param count Number of tokens to mint
-     * @param tokenId Array of token IDs to be minted
-     * @param metadata Array of metadata associated with the tokens
-     * @param reservable Boolean indicating whether each token is related to a reservable asset
-     * @param data Additional data for minting
-     */
-    function mintBatch(
-        address account,
-        uint8 count,
-        uint256[] memory tokenId,
-        string[] memory metadata,
-        bool reservable,
-        bytes memory data
-    ) external onlyRole(MINTER_ROLE) {
-        if (reservable) {
-            for (uint8 i; i < count; i++) {
-                require(
-                    reserver.isReserved(tokenId[i]),
-                    "Asset is not reserved yet"
-                );
-            }
-        }
-        uint256[] memory amounts = new uint256[](count);
-
-        for (uint8 i; i < count; i++) {
-            amounts[i] = MAX_TOKEN_AMOUNT;
-        }
-        _mintBatch(account, tokenId, amounts, data);
-        for (uint i; i < tokenId.length; i++) {
-            // totalAmount[tokenId[i]] = amounts[i];
-            ownership[tokenId[i]][account] = amounts[i];
-            ownedTokens[account].push(tokenId[i]);
-            owners[tokenId[i]].push(account);
-            metadatas[tokenId[i]] = metadata[i];
-            emit TokenMinted(tokenId[i], account);
-        }
     }
 
     /**
@@ -285,6 +248,18 @@ contract FractionalizedNFT is
         uint256 tokenId
     ) external view returns (string memory) {
         return metadatas[tokenId];
+    }
+
+    /**
+     * @dev Get the reserver USD pricing for each token fraction
+     * @param tokenId ID of the token
+     * @return Price of the token in USD
+     */
+    function getReserverPricingUSD(
+        uint256 tokenId
+    ) external view returns (uint256) {
+        // USD Price with 6 decimals
+        return reserverPricingUSD[tokenId] / MAX_TOKEN_AMOUNT;
     }
 
     /**
