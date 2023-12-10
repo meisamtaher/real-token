@@ -3,25 +3,42 @@ import Button from '@mui/material/Button';
 import { Grid, Typography } from '@mui/material';
 import ImageUploadToIPFS from '../components/FileUpload';
 import { useAccount, useContractWrite,usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
-import {  FractionalizeNFTContractAddress } from '../constants/constants';
+import {  FractionalizeNFTContractAddress,FReserverContractAddress } from '../constants/constants';
 import FNFT from "../constants/FractionalizedNFT.json";
+import FReserve from "../constants/Reserver.json";
 import { cidToUint256Str } from '../utils/cidConvert';
 function Mint() {
   const account = useAccount();
   const [cid,setCid] = useState<string|undefined>(undefined);
   const [tokenId,setTokenId] = useState<string|undefined>(undefined);
-  const reservable = false;
-  const { config } = usePrepareContractWrite({
+  const [reservable,setReservable] = useState<boolean>(false);
+  const { config:FNFTConfig } = usePrepareContractWrite({
     address: FractionalizeNFTContractAddress,
     abi: FNFT.abi,
     functionName: 'mint',
     args: [account.address, tokenId,cid, reservable, account.address],
     enabled: Boolean(account.address && cid && tokenId && reservable!=null && account.address),
   })
-  const { data ,write } = useContractWrite(config);
-  const { isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
+  const { data:FNFTData ,write:FNFTWrite } = useContractWrite(FNFTConfig);
+  const { config:ReserveConfig } = usePrepareContractWrite({
+    address: FReserverContractAddress,
+    abi: FReserve.abi,
+    functionName: 'Reserve',
+    args: [tokenId],
+    enabled: Boolean(tokenId),
   })
+  const { data:ReserveData ,write:ReserveWrite } = useContractWrite(ReserveConfig);
+  const { isLoading:isLoadingReserve, isSuccess:isSuccessReserve } = useWaitForTransaction({
+    hash: ReserveData?.hash,
+  })
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: FNFTData?.hash,
+  })
+  useEffect(()=>{
+    if(isSuccessReserve){
+      setReservable(true);
+    }
+  },[isSuccessReserve]);
   useEffect(()=>{
     if(cid){
       const temp = cidToUint256Str(cid);
@@ -36,13 +53,16 @@ function Mint() {
         <div>
           Successfully minted your NFT!
           <div>
-            <a href={`https://mumbai.polygonscan.com/tx/${data?.hash}`}>Polygon Scan</a>
+            <a href={`https://mumbai.polygonscan.com/tx/${FNFTData?.hash}`}>Polygon Scan</a>
           </div>
         </div>
       )}
     {cid && <Typography>{cid}</Typography>}
-    <Button disabled={cid == undefined} onClick={()=>{ console.log("Trying to mint..."); write?.(); }}>
+    <Button disabled={cid == undefined || !isSuccessReserve} onClick={()=>{ console.log("Trying to mint..."); FNFTWrite?.(); }}>
        Mint
+    </Button>
+    <Button disabled={cid == undefined || isLoadingReserve } onClick={()=>{ console.log("Trying to Reserve..."); ReserveWrite?.(); }}>
+       Reserve
     </Button>
   </Grid>
 
