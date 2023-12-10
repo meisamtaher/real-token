@@ -44,7 +44,7 @@ module.exports = {
   docgen: {
     path: "./docs", // Specify the path where the generated documentation will be saved
     clear: true, // Optional - Clears the documentation directory before generating the new documentation
-    // runOnCompile: true,
+    runOnCompile: true,
     // templates: {
     //   group: "./templates/group.hbs", // Optional - Path to the Handlebars template for groups
     //   contract: "./templates/contract.hbs", // Optional - Path to the Handlebars template for contracts

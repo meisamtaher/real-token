@@ -64,7 +64,7 @@ event AmountTransferred(uint256 tokenId, address from, address to, uint256 amoun
 ### constructor
 
 ```solidity
-constructor(address defaultAdmin, address _reserver, string uri) public
+constructor(address defaultAdmin, address _reserver, string baseUri) public
 ```
 
 _Constructor_
@@ -75,7 +75,7 @@ _Constructor_
 | ---- | ---- | ----------- |
 | defaultAdmin | address | Default admin address with all roles |
 | _reserver | address | Address of the Reserver contract |
-| uri | string | Base URI for token metadata |
+| baseUri | string | Base URI for token metadata |
 
 ### setReserver
 
@@ -317,6 +317,27 @@ _Get the allowance for a specific operator on a token_
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | uint256 | Allowance amount |
+
+### uri
+
+```solidity
+function uri(uint256 tokenId) public view returns (string)
+```
+
+_Returns the URI for a given token ID.
+Overrides the ERC1155 implementation._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tokenId | uint256 | The ID of the token. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | string | string The URI string. |
 
 ### supportsInterface
 

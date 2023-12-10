@@ -73,13 +73,13 @@ contract FractionalizedNFT is
      * @dev Constructor
      * @param defaultAdmin Default admin address with all roles
      * @param _reserver Address of the Reserver contract
-     * @param uri Base URI for token metadata
+     * @param baseUri Base URI for token metadata
      */
     constructor(
         address defaultAdmin,
         address _reserver,
-        string memory uri
-    ) ERC1155(uri) {
+        string memory baseUri
+    ) ERC1155(baseUri) {
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(PAUSER_ROLE, defaultAdmin);
         _grantRole(MINTER_ROLE, defaultAdmin);
