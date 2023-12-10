@@ -98,7 +98,7 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
     return owners[tokenId];
   }
 
-  function getAssetPring(uint256 tokenId) view  public returns(uint256){
+  function getAssetPricing(uint256 tokenId) view  public returns(uint256){
     return assetPrice[tokenId];
   } 
 
