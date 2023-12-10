@@ -1,7 +1,7 @@
 import { useEffect,useState } from 'react';
 import OwnedNFTCard from '../components/OwnedNFTCard';
 import {  useParams } from 'react-router-dom';
-// import {useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import { Grid } from '@mui/material';
 import { FractionalizeNFTContractAddress } from '../constants/constants';
 import NFTContract from '../constants/FractionalizedNFT.json'
@@ -12,6 +12,7 @@ import { OwnedNFT } from '../interfaces/types';
 
 
 function Profile() {
+  const navigate = useNavigate();
   let { ProfileId } = useParams();
   const [NFTs, setNFTs] = useState<OwnedNFT[] | undefined>();
   const account = useAccount();
@@ -22,12 +23,6 @@ function Profile() {
     try {
     const tokens = await myContract.getOwnedTokens(account.address);
     const cids = tokens.map((token:bigint)=>{return uint256toCid(token);})
-    // const a = async()=>{
-    //   const metadata = await fetch(import.meta.env.VITE_PINATA_GET_URL + cids[0]);
-    //   const josn = await metadata.json();
-    //   console.log("json", josn);
-    // };
-    // a();
     const promises = cids.map(async(cid:string)=>{const metadata = await fetch(import.meta.env.VITE_PINATA_GET_URL + cid); return await metadata.json();})
     const metadatas = await Promise.all(promises);
     const nfts:OwnedNFT[] = [];
@@ -39,15 +34,12 @@ function Profile() {
       console.error("Error fetching tokens: ", error);
     }
   };
-  const getPrfileDetails = async()=>{
-    console.log("get Profile Details...")
-  }
   useEffect(()=>{
     getOwnedToken();
-    getPrfileDetails();
   },[ProfileId]);
   function handleNFTClick(tokenId: any) {
-    console.log(tokenId);
+    console.log("Clicked on NFT with Address" +tokenId);
+    navigate("/real-token/Profile/"+ProfileId+"/"+tokenId);
   }
   return (
     <Grid container padding={5} direction="row" spacing={5} justifyContent={'center'} alignItems={'flex-start'}>
