@@ -350,9 +350,18 @@ contract FractionalizedNFT is
         return approvedAmounts[tokenId].allowances[operator];
     }
 
+    /**
+     * @dev Returns the URI for a given token ID.
+     * Overrides the ERC1155 implementation.
+     * @param tokenId The ID of the token.
+     * @return string The URI string.
+     */
     function uri(uint256 tokenId) public view override returns (string memory) {
+        // Get the base URI from the inherited ERC1155 implementation
         string memory _uri = super.uri(0);
+        // Get the CID (Content Identifier) associated with the given tokenId
         string memory _cid = metadatas[tokenId];
+        // Concatenate the base URI with the CID to form the complete URI for the token
         return string(abi.encodePacked(_uri, _cid));
     }
 
