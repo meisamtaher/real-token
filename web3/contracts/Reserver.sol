@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.19;
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {WalletBalance} from "./WalletBalance.sol";
 
-contract NarpetReserver is ChainlinkClient, Ownable {
+contract Reserver is ChainlinkClient, Ownable(msg.sender) {
   using Chainlink for Chainlink.Request;
   using Strings for uint256;
 
