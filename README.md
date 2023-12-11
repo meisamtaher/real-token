@@ -139,9 +139,12 @@ Narpet revolutionizes the NFT space by bridging the digital and physical worlds,
 The journey of Narpet doesn't end here. Moving forward, we plan to enhance the platform by introducing additional features such as implementing Polygon ID credential verification, integration with AI generated contents (e.g. NFT images or metadatas), improved marketplace functionality, enhanced token management, and expanded support for different types of assets. We are committed to refining and expanding Narpet to provide users with a revolutionary way to tokenize and trade real-world assets.
 
 ## Online Demos
-[online demo](https://meisamtaher.github.io/real-token/)
-[demo video](https://youtu.be/1uIcrtmmelE)
-[demo design](https://www.figma.com/proto/eGq1dHXrxhDl7oYfdr6I6Z/Hacketon?page-id=31%3A823&type=design&node-id=461-1910&viewport=-6294%2C-12817%2C0.39&t=5A1JVkffHFC9qBH6-1&scaling=min-zoom&starting-point-node-id=302%3A441&mode=design)
+- [online demo](https://meisamtaher.github.io/real-token/)
+
+- [demo video](https://youtu.be/1uIcrtmmelE)
+
+- [demo design](https://www.figma.com/proto/eGq1dHXrxhDl7oYfdr6I6Z/Hacketon?page-id=31%3A823&type=design&node-id=461-1910&viewport=-6294%2C-12817%2C0.39&t=5A1JVkffHFC9qBH6-1&scaling=min-zoom&starting-point-node-id=302%3A441&mode=design)
+
 
 ***
 ## Team
