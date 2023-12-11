@@ -148,6 +148,4 @@ The journey of Narpet doesn't end here. Moving forward, we plan to enhance the p
 - [@Meisamtaher](https://www.github.com/meisamtaher)
 - [@Mahdieh-amiri1](https://www.github.com/mahdieh-amiri1)
 - [@Hooman (DMind) Dehghani](https://www.github.com/itsDMind)
-- 
-
 
