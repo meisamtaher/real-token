@@ -6,6 +6,10 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import {WalletBalance} from "./WalletBalance.sol";
 
+/**
+ * @title Reserver
+ * @dev A contract for reserving NFTs using Chainlink Proof of Reserve.
+ */
 contract Reserver is ChainlinkClient, Ownable(msg.sender) {
     using Chainlink for Chainlink.Request;
     using Strings for uint256;
@@ -13,7 +17,8 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
     address public oracle;
     bytes32 public jobId;
     uint256 public fee;
-    uint randNo = 1132;
+    uint256 public minBalance;
+    uint private randNo = 1132;
 
     struct Request {
         address sender;
@@ -37,12 +42,23 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
 
     modifier checkBalance(address entry) {
         require(
-            walletbalance.getMaticBalance(entry) > 100,
+            walletbalance.getMaticBalance(entry) >= minBalance,
             "is not eligile for minter role"
         );
         _;
     }
 
+    function setMinBalance(uint256 _minBalance) external onlyOwner {
+        minBalance = _minBalance;
+    }
+
+    /**
+     * @dev Sets the Chainlink job configuration.
+     * @param _link The LINK token address.
+     * @param _oracle The Chainlink oracle address.
+     * @param _jobId The Chainlink job ID.
+     * @param _fee The Chainlink fee.
+     */
     function setJobConfig(
         address _link,
         address _oracle,
@@ -55,6 +71,11 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
         fee = _fee;
     }
 
+    /**
+     * @dev Initiates the Chainlink request to verify a tokenId.
+     * @param tokenId The tokenId to be verified.
+     * @return requestId The Chainlink request ID.
+     */
     function verify(uint256 tokenId) public returns (bytes32) {
         address sender = address(this);
 
@@ -77,6 +98,10 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
         return requestId;
     }
 
+    /**
+     * @dev Fulfills the Chainlink request and reserves the tokenId.
+     * @param requestId The Chainlink request ID.
+     */
     function fulfill(bytes32 requestId) public {
         Request storage request = requests[requestId];
 
@@ -87,10 +112,20 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
         delete requestPending[request.sender];
     }
 
+    /**
+     * @dev Checks if a tokenId is reserved.
+     * @param tokenId The tokenId to check.
+     * @return true if the tokenId is reserved, false otherwise.
+     */
     function isReserved(uint256 tokenId) public view returns (bool) {
         return reserved[tokenId];
     }
 
+    /**
+     * @dev Reserves a tokenId.
+     * @param tokenId The tokenId to be reserved.
+     * @return true if the tokenId is successfully reserved.
+     */
     function Reserve(
         uint256 tokenId
     ) public checkBalance(msg.sender) returns (bool) {
@@ -98,12 +133,18 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
         bytes32 fake_reqID = 0x0000000000000000000000000000000000000000000000000000000000000000;
         fulfill(fake_reqID);
         reserved[tokenId] = true;
-        assetPrice[tokenId] = uint(
-            keccak256(abi.encodePacked(msg.sender, block.timestamp, randNo))
-        );
+        assetPrice[tokenId] = 10000;
+        // uint(
+        //     keccak256(abi.encodePacked(msg.sender, block.timestamp, randNo))
+        // );
         return true;
     }
 
+    /**
+     * @dev Gets the owner address of a tokenId.
+     * @param tokenId The tokenId to check.
+     * @return The address of the tokenId owner.
+     */
     function ownerOf(uint256 tokenId) public view returns (address) {
         return owners[tokenId];
     }
@@ -112,6 +153,11 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
         return assetPrice[tokenId];
     }
 
+    /**
+     * @dev Converts a string to bytes32.
+     * @param source The string to convert.
+     * @return result The bytes32 representation of the string.
+     */
     function stringToBytes32(
         string memory source
     ) private pure returns (bytes32 result) {
