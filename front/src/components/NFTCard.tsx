@@ -16,19 +16,6 @@ function NFTCard(props: Props) {
         </Button>
         </CardContent>
     </Card>
-    // <Card>
-    //     <CardContent sx ={{display:'flex', justifyContent:'center', alignItems: 'center', direction:'column' }} >
-    //         <Stack direction="column" alignItems="center" spacing={5}>
-    //             <Avatar src={props.NFT.img} sx={{ width: 70, height: 70 }}  />
-    //             <Typography gutterBottom variant="h5" component="div" >
-    //             {props.NFT.name}
-    //             </Typography>
-    //             <Button onClick={props.onClick} sx={(theme)=>({border:"3px solid #C6EEEA", borderRadius:'10px' })}>
-    //             Buy
-    //             </Button>
-    //         </Stack>
-    //     </CardContent>
-    // </Card>
   );
 }
 

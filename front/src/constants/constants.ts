@@ -1,4 +1,4 @@
-export const MarketPlaceContractAddress ="0xcD1F709E4F10839BDaE763E49eFf4858a2D30C9c";
-export const FractionalizeNFTContractAddress = "0x36D12972E7f888B6C2984D2fbe6F9EAb317Efe39";
-export const FReserverContractAddress = "0xF373be196cc08599Bf3aC9033fC3E46426237FFE";
-export const MaticContractAddress = "0x3902145173758fA0859f51d917b27F7bFA17E62d";
+export const MarketPlaceContractAddress ="0x32c3eb2f4b36500fD9b065999Eb998FA6ece7C46";
+export const FractionalizeNFTContractAddress = "0xdA35481a0502D92E449AF98De58Fa344Cb91D3bd";
+export const FReserverContractAddress = "0xfa27d36798340E253DB192A6117086ee307e0B05";
+export const MaticContractAddress = "0xEd1124dd25e7d3a59A2374163dD81BAb1f3471a3";

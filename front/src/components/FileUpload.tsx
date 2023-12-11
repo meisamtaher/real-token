@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from 'react';
 import axios from 'axios';
-import { Typography } from '@mui/material';
+import { Stack, TextField, Typography } from '@mui/material';
 import { Button } from '@mui/base';
 interface Props{
   cid: string|undefined,
@@ -77,16 +77,16 @@ const ImageUploadToIPFS = (props: Props) => {
   };
 
   return (
-    <div>
+    <Stack padding={5} direction={'column'} spacing={3} justifyContent={'right'}>
+      <TextField disabled = {loading} label="NFT Name" value={name} onChange={onNameChange} />
+      <TextField disabled = {loading} label="Description" value={description} onChange={onDescriptionChange} minRows={3}/>
       <input disabled = {loading} type="file" onChange={onFileChange} accept="image/*" />
-      <input type = "text" content={name} onChange={onNameChange}/>
-      <input type = "text" content={description} onChange={onDescriptionChange}/>
       <Button disabled = {loading} onClick={uploadToIPFS}>Upload to IPFS</Button>
       {loading && <Typography>Uploading file ...</Typography>}
       {url && <div><a href={url} target="_blank" rel="noopener noreferrer">View uploaded image</a></div>}
       {url && <img  src={url} width={200} height={275}/>}
       {json && <div><a href={json} target="_blank" rel="noopener noreferrer">View Json Metadat</a></div>}
-    </div>
+    </Stack>
   );
 };
 

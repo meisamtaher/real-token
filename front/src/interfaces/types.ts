@@ -7,6 +7,7 @@ export interface OwnedNFTProp{
     onClick: React.MouseEventHandler<HTMLElement>
 }
 export interface ListedNFT{
+    orderId: string,
     name: string,
     img: string,
     tokenId: string
@@ -16,5 +17,9 @@ export interface ListedNFT{
 export interface OwnedNFT{
     name: string,
     image: string,
-    tokenId: string
+    tokenId: string,
+}
+export interface PriceData{
+    price: string,
+    availableAmount:string
 }

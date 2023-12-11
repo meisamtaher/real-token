@@ -22,7 +22,7 @@ function Explore() {
       address: MarketPlaceContractAddress,
       fromBlock: 0,
       toBlock: 'latest',
-      topics: [ethers.id(`${eventName}(uint256,address,uint256,uint256)`)] // Replace `argTypes` with actual event argument types
+      topics: [ethers.id(`${eventName}(uint256,uint256,address,uint256,uint256)`)] // Replace `argTypes` with actual event argument types
     };
     try {
       const logs = await provider.getLogs(filter);
@@ -40,22 +40,22 @@ function Explore() {
       console.error("Error fetching events: ", error);
     }
   };
-  const handleNFTClick = (key: string) => {
+  const handleNFTClick = (key: string,orderId:string) => {
     console.log("Clicked on NFT with Address", key);
-    navigate("/real-token/Explore/"+key);
+    navigate("/real-token/Explore/"+key+"/"+orderId);
   };
   const [NFTs, setNFTs] = useState<ListedNFT[] | undefined>();
   const getListedNFTs = async() =>{
     console.log("Trying to fetch all Listed NFTs... ");
     const listedTokens = await getPastEvents();
-    const cids = listedTokens?.map((token)=>{return uint256toCid(token?.args[0]);})
+    const cids = listedTokens?.map((token)=>{return uint256toCid(token?.args[1]);})
     const promises = cids?.map(async(cid:string)=>{const metadata = await fetch(import.meta.env.VITE_PINATA_GET_URL + cid); return await metadata.json();})
     var metadatas;
     const nfts:ListedNFT[] = [];
     if(promises){
       metadatas = await Promise.all(promises);
       for(var i=0;i<metadatas.length;i++){
-        nfts.push({name:metadatas[i].name, img:metadatas[i].image, tokenId:listedTokens?.[i]?.args[0], price:listedTokens?.[i]?.args[3], price_token:"Matic"})
+        nfts.push({orderId:listedTokens?.[i]?.args[0],name:metadatas[i].name, img:metadatas[i].image, tokenId:listedTokens?.[i]?.args[1], price:listedTokens?.[i]?.args[4], price_token:"Matic"})
       }
     }
     setNFTs(nfts);
@@ -68,7 +68,7 @@ function Explore() {
     {NFTs?.map((NFT) =>(
       // <Item>
       <Grid item>
-        <NFTCard NFT={NFT} onClick={()=>handleNFTClick(NFT.tokenId)}/>
+        <NFTCard NFT={NFT} onClick={()=>handleNFTClick(NFT.tokenId,NFT.orderId)}/>
       </Grid>
       // </Item>
     ))}

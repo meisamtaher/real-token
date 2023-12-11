@@ -13,7 +13,7 @@ function Main() {
       <MainBar />
         <Routes>
             <Route path = "/real-token/Explore" element={<Explore/>}  />
-            <Route path = "/real-token/Explore/:NFTId" element={<NFTDetials sell={false}/>}  />
+            <Route path = "/real-token/Explore/:NFTId/:OrderId" element={<NFTDetials sell={false}/>}  />
             <Route path = "/real-token/Profile/:ProfileId" element={<Profile/>}  />
             <Route path = "/real-token/Profile/:ProfileId/:NFTId" element={<NFTDetials sell={true}/>}  />
             <Route path = "/real-token/Mint" element={<Mint/>}  />

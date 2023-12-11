@@ -23,7 +23,7 @@ function Mint() {
   const { config:ReserveConfig } = usePrepareContractWrite({
     address: FReserverContractAddress,
     abi: FReserve.abi,
-    functionName: 'Reserve',
+    functionName: 'reserve',
     args: [tokenId],
     enabled: Boolean(tokenId),
   })
@@ -46,8 +46,9 @@ function Mint() {
     }
   },[cid]);
   return (
-  <Grid container justifyContent={'center'} spacing={3} padding={7} direction="column" alignItems={'center'}>
+  <Grid container justifyContent={'Left'} spacing={3} padding={7} direction="column" alignItems={'Left'}>
     <ImageUploadToIPFS cid = {cid} setCid = {setCid}/>
+    {isLoadingReserve && <Typography> Wait for Reserve Transaction to confirm...</Typography>}
     {isLoading && <Typography>Loading....</Typography>}
     {isSuccess && (
         <div>
@@ -57,12 +58,11 @@ function Mint() {
           </div>
         </div>
       )}
-    {cid && <Typography>{cid}</Typography>}
-    <Button disabled={cid == undefined || !isSuccessReserve} onClick={()=>{ console.log("Trying to mint..."); FNFTWrite?.(); }}>
-       Mint
-    </Button>
-    <Button disabled={cid == undefined || isLoadingReserve } onClick={()=>{ console.log("Trying to Reserve..."); ReserveWrite?.(); }}>
+    <Button disabled={cid == undefined || isLoadingReserve || isSuccessReserve } onClick={()=>{ console.log("Trying to Reserve...", ReserveWrite); ReserveWrite?.(); }}>
        Reserve
+    </Button>
+    <Button className="nice_but" disabled={cid == undefined || !isSuccessReserve} onClick={()=>{ console.log("Trying to mint...",FNFTWrite); FNFTWrite?.(); }}>
+       Mint
     </Button>
   </Grid>
 

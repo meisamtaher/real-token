@@ -52,9 +52,9 @@ function MainBar() {
           </Box>
           <Stack sx={{ flexGrow: 0 }} direction={'row'}>
             <ConnectButton  chainStatus="full" accountStatus={{smallScreen:'avatar',largeScreen: 'address',}}/>
-            {account.isConnected &&<div onClick={goToProfile}>
-              <Avatar />
-            </div>}
+            {account.isConnected &&<Button onClick={goToProfile}>
+              <Avatar  />
+            </Button>}
           </Stack>
         </Toolbar>
       </Container>
