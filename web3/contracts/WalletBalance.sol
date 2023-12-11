@@ -8,6 +8,9 @@ contract WalletBalance {
     IERC20 public WMatic;
     AggregatorV3Interface internal reservesWMatic;
 
+    address base_asset_address = 0xe6b8a5CF854791412c1f6EFC7CAf629f5Df1c747;
+    address quot_asset_address = 0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889;
+    uint80 _roundId = 10;
     /**
      * Aggregator: WMatic reserve and WMatic supply
      * WMatic Address: 0xb0897686c545045aFc77CF20eC7A532E3120E0F1
@@ -20,23 +23,37 @@ contract WalletBalance {
         );
     }
 
-    function getBalance(address walletAddress) public view returns (uint256) {
-        return walletAddress.balance;
+
+
+    function getMaticBalance(address entry) public view returns(int256){
+        (, int256 answer,,,) = getRoundData(base_asset_address,quot_asset_address, _roundId);
+        return answer;
     }
 
-    function getMaticPrice() public view returns (int256) {
-        (, int256 price, , , ) = reservesWMatic.latestRoundData();
-        return price;
-    }
 
-    function getMaticBalance(
-        address walletAddress
-    ) public view returns (uint256) {
-        uint256 balance = getBalance(walletAddress);
-        int256 maticPrice = getMaticPrice();
-        uint256 maticBalance = (uint256(balance) * uint256(maticPrice)) / 1e18;
-        return maticBalance;
-    }
+
+function getRoundData(
+  uint80 _roundId
+)
+  public
+  view
+  override()
+  returns (uint80 roundId, int256 answer, uint256 startedAt, uint256 updatedAt, uint80 answeredInRound)
+{
+  return super.getRoundData(_roundId);
+}
+
+function hasAccess(address _user, bytes memory _calldata) public view virtual override returns (bool) {
+  return super.hasAccess(_user, _calldata) || _user == tx.origin;
+}
+
+
+
+
+
+
+
+
 
     //Returns the latest Supply info
     function getSupply() public view returns (uint256) {
