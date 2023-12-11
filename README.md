@@ -119,12 +119,12 @@ Retrieves the user's MATIC balance using the Chainlink AggregatorV3Interface.
 
 - **Polygon zkEVM**
 
-  WalletBalance deployed to: 0xBFC1822277bA6394966786A6517B308cf78fe37E
-  Reserver deployed to: 0xCa8a5819bcBA1Fd4a9D3fc03258E89352F18Fc10
-  FractionalizedNFT deployed to: 0xF2d74a66192B4a5666aa4ec4Bc9dA5b231e7339E
-  matic deployed to: 0xB2f2275935158092B9F5e57c1a5bB4bd933DD552
-  priceConsumerV3 deployed to: 0xEeC0c00d0281764017085Fc8AE3B69A312f52076
-  Marketplace deployed at 0x22Aa658133cC8b4F2d492b31E215029C0747e6d1
+  - WalletBalance deployed to: 0xBFC1822277bA6394966786A6517B308cf78fe37E
+  - Reserver deployed to: 0xCa8a5819bcBA1Fd4a9D3fc03258E89352F18Fc10
+  - FractionalizedNFT deployed to: 0xF2d74a66192B4a5666aa4ec4Bc9dA5b231e7339E
+  - matic deployed to: 0xB2f2275935158092B9F5e57c1a5bB4bd933DD552
+  - priceConsumerV3 deployed to: 0xEeC0c00d0281764017085Fc8AE3B69A312f52076
+  - Marketplace deployed at 0x22Aa658133cC8b4F2d492b31E215029C0747e6d1
 
 
 ***
