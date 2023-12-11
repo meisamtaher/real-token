@@ -3,7 +3,10 @@ const hre = require("hardhat");
 async function main() {
   const [deployer] = await ethers.getSigners();
 
-  const reserver = await hre.ethers.deployContract("Reserver")
+  const walletBalance = await hre.ethers.deployContract("WalletBalance")
+  console.log(`WalletBalance deployed to: ${walletBalance.target}`)
+
+  const reserver = await hre.ethers.deployContract("Reserver", [walletBalance.target])
   console.log(`Reserver deployed to: ${reserver.target}`)
   // 0x75694799364A1da9d131841d970AF4939A33d500
 

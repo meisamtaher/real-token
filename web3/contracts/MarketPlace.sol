@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Matic} from "./Mocks/Matic.sol";
 import {FractionalizedNFT} from "./FractionalizedNFT.sol";
 import {PriceConsumerV3} from "./PriceConsumerV3.sol";
+
 /**
  * @title MarketPlace
  * @dev A marketplace contract for buying and selling fractionalized NFTs.
@@ -68,13 +69,13 @@ contract MarketPlace is Ownable, ReentrancyGuard {
      */
     constructor(
         address _fractionalizedNFT,
-        address _matic, 
+        address _matic,
         address _priceConsumerV3
     ) Ownable(msg.sender) {
         fractionalizedNFT = FractionalizedNFT(_fractionalizedNFT);
         matic = Matic(_matic);
         priceConsumerV3 = PriceConsumerV3(_priceConsumerV3);
-    } 
+    }
 
     /**
      * @dev Function to list a token for sale.
@@ -115,7 +116,9 @@ contract MarketPlace is Ownable, ReentrancyGuard {
      * @param tokenId ID of the token
      * @return Price of the token in Matic
      */
-    function getReserverPricingMatic(uint256 tokenId) external view returns(uint256){
+    function getReserverPricingMatic(
+        uint256 tokenId
+    ) external view returns (uint256) {
         uint256 _USDPrice = fractionalizedNFT.getReserverPricingUSD(tokenId); // 6 decimals
         uint256 _matics = priceConsumerV3.getUSDToMatic(_USDPrice, 6);
         return _matics;
