@@ -43,7 +43,7 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
     modifier checkBalance(address entry) {
         require(
             walletbalance.getMaticBalance(entry) >= minBalance,
-            "is not eligile for minter role"
+            "Is not eligile for minter role"
         );
         _;
     }
@@ -126,9 +126,9 @@ contract Reserver is ChainlinkClient, Ownable(msg.sender) {
      * @param tokenId The tokenId to be reserved.
      * @return true if the tokenId is successfully reserved.
      */
-    function Reserve(
-        uint256 tokenId
-    ) public checkBalance(msg.sender) returns (bool) {
+    function reserve(
+        uint256 tokenId /*checkBalance(msg.sender)*/
+    ) public returns (bool) {
         // bytes32 reqID = verify(tokenId);
         bytes32 fake_reqID = 0x0000000000000000000000000000000000000000000000000000000000000000;
         fulfill(fake_reqID);

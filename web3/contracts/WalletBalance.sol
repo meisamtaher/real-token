@@ -45,8 +45,13 @@ contract WalletBalance {
 
     //Returns the latest Reserves info
     function getLatestReserves() public view returns (int) {
-        (, /* uint80 roundID */ int answer, , , ) = /* uint startedAt */ /* uint updatedAt */ /* uint80 answeredInRound */
-        reservesWMatic.latestRoundData();
+        (
+            ,
+            /* uint80 roundID */ int answer /* uint startedAt */ /* uint updatedAt */ /* uint80 answeredInRound */,
+            ,
+            ,
+
+        ) = reservesWMatic.latestRoundData();
         return answer;
     }
 

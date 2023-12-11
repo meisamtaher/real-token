@@ -730,10 +730,10 @@ bytes32 jobId
 uint256 fee
 ```
 
-### randNo
+### minBalance
 
 ```solidity
-uint256 randNo
+uint256 minBalance
 ```
 
 ### Request
@@ -743,6 +743,12 @@ struct Request {
   address sender;
   uint256 tokenId;
 }
+```
+
+### walletbalance
+
+```solidity
+contract WalletBalance walletbalance
 ```
 
 ### requests
@@ -781,10 +787,28 @@ mapping(uint256 => bool) reserved
 mapping(uint256 => uint256) assetPrice
 ```
 
+### walletBalance
+
+```solidity
+address walletBalance
+```
+
 ### constructor
 
 ```solidity
-constructor() public
+constructor(address contractWalletBalance) public
+```
+
+### checkBalance
+
+```solidity
+modifier checkBalance(address entry)
+```
+
+### setMinBalance
+
+```solidity
+function setMinBalance(uint256 _minBalance) external
 ```
 
 ### setJobConfig
@@ -858,10 +882,10 @@ _Checks if a tokenId is reserved._
 | ---- | ---- | ----------- |
 | [0] | bool | true if the tokenId is reserved, false otherwise. |
 
-### Reserve
+### reserve
 
 ```solidity
-function Reserve(uint256 tokenId) public returns (bool)
+function reserve(uint256 tokenId) public returns (bool)
 ```
 
 _Reserves a tokenId._
@@ -902,6 +926,66 @@ _Gets the owner address of a tokenId._
 
 ```solidity
 function getAssetPricing(uint256 tokenId) public view returns (uint256)
+```
+
+## WalletBalance
+
+### WMatic
+
+```solidity
+contract IERC20 WMatic
+```
+
+### reservesWMatic
+
+```solidity
+contract AggregatorV3Interface reservesWMatic
+```
+
+### constructor
+
+```solidity
+constructor() public
+```
+
+Aggregator: WMatic reserve and WMatic supply
+WMatic Address: 0xb0897686c545045aFc77CF20eC7A532E3120E0F1
+Reserves Address: 0x3d2341ADb2D31f1c5530cDC622016af293177AE0
+
+### getBalance
+
+```solidity
+function getBalance(address walletAddress) public view returns (uint256)
+```
+
+### getMaticPrice
+
+```solidity
+function getMaticPrice() public view returns (int256)
+```
+
+### getMaticBalance
+
+```solidity
+function getMaticBalance(address walletAddress) public view returns (uint256)
+```
+
+### getSupply
+
+```solidity
+function getSupply() public view returns (uint256)
+```
+
+### getLatestReserves
+
+```solidity
+function getLatestReserves() public view returns (int256)
+```
+
+### isWMaticHealthOK
+
+```solidity
+function isWMaticHealthOK() public view returns (bool)
 ```
 
 ## Lock

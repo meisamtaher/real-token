@@ -19,9 +19,15 @@ describe("FractionalizedNFT Contract", function () {
   beforeEach(async function () {
     [owner, user1, user2] = await ethers.getSigners();
 
+
+
+    const WalletBalance = await ethers.getContractFactory("WalletBalance");
+    const walletBalance = await WalletBalance.deploy();
+
+
     const Reserver = await ethers.getContractFactory("Reserver");
 
-    reserver = await Reserver.deploy();
+    reserver = await Reserver.deploy(walletBalance.target);
 
     const FractionalizedNFT = await ethers.getContractFactory(
       "FractionalizedNFT"
@@ -35,8 +41,8 @@ describe("FractionalizedNFT Contract", function () {
   });
 
   // Test the mint function
-  it("Should mint a new token with the correct ownership", async function () {
-    [owner, user1, user2] = await ethers.getSigners();
+  it.only("Should mint a new token with the correct ownership", async function () {
+    // [owner, user1, user2] = await ethers.getSigners();
     // Mint a new token
     const ipfsCid = "QmVd9NV6QDK2MoEEcj2RtUbiXC3MaNjHmud2xFUMTs9xmZ";
     let metadata = ipfsCid;
@@ -45,12 +51,16 @@ describe("FractionalizedNFT Contract", function () {
 
     console.log(id);
 
+
+    await reserver.reserve(id);
+
+
     const mintTx = (
       await fractionalizedNFT.mint(
         owner.address,
         id,
         metadata,
-        false,
+        true,
         ethers.encodeBytes32String("data")
       )
     ).wait();
@@ -92,7 +102,7 @@ describe("FractionalizedNFT Contract", function () {
     expect(tokenMetadata).to.equal(metadata);
   });
 
-  it.only("Should return uri of the token correctly", async function () {
+  it("Should return uri of the token correctly", async function () {
     // Mint a new token
     const ipfsCid = "QmVd9NV6QDK2MoEEcj2RtUbiXC3MaNjHmud2xFUMTs9xmZ";
     let metadata = ipfsCid;
