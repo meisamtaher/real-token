@@ -12,9 +12,11 @@
     - [4. PriceConsumerV3.sol](#4-priceconsumerv3sol)
     - [5. WalletBalance.sol](#5-walletbalancesol)
 6. [Technologies Used](#technologies-used)
-7. [Getting Started](#getting-started)
+7. [Networks](#networks)
 8. [Conclusion](#conclusion)
 9. [What's Next for Narpet](#whats-next-for-narpet)
+10. [Online Demos](#online-demos)
+11. [Team](#team)
 
 ***
 ## Overview
@@ -128,26 +130,24 @@ Retrieves the user's MATIC balance using the Chainlink AggregatorV3Interface.
 
 
 ***
-## Getting Started
-
-(Provide instructions on how to set up and deploy the contracts, run the frontend, and interact with the Narpet platform.)
-***
 ## Conclusion
 
 Narpet revolutionizes the NFT space by bridging the digital and physical worlds, allowing users to own and trade fractions of real-world assets on the blockchain. The project introduces a new dimension to NFT utility and liquidity.
 ***
 ## What's Next for Narpet
 
-(Describe future plans, potential features, or improvements for the Narpet project.)
+The journey of Narpet doesn't end here. Moving forward, we plan to enhance the platform by introducing additional features such as implementing Polygon ID credential verification, integration with AI generated contents (e.g. NFT images or metadatas), improved marketplace functionality, enhanced token management, and expanded support for different types of assets. We are committed to refining and expanding Narpet to provide users with a revolutionary way to tokenize and trade real-world assets.
 
-
-
+## Online Demos
+[online demo](https://meisamtaher.github.io/real-token/)
+[demo video](https://youtu.be/1uIcrtmmelE)
+[demo design](https://www.figma.com/proto/eGq1dHXrxhDl7oYfdr6I6Z/Hacketon?page-id=31%3A823&type=design&node-id=461-1910&viewport=-6294%2C-12817%2C0.39&t=5A1JVkffHFC9qBH6-1&scaling=min-zoom&starting-point-node-id=302%3A441&mode=design)
 
 ***
 ## Team
-- [@Hooman (DMind) Dehghani](https://www.github.com/itsDMind)
+- [@Meisamtaher](https://www.github.com/meisamtaher)
 - [@Mahdieh-amiri1](https://www.github.com/mahdieh-amiri1)
+- [@Hooman (DMind) Dehghani](https://www.github.com/itsDMind)
+- 
 
 
-## Demo Website 
-[online demo](https://meisamtaher.github.io/real-token/)
