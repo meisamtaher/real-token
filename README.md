@@ -110,12 +110,12 @@ Retrieves the user's MATIC balance using the Chainlink AggregatorV3Interface.
 ## Networks
 - **Polygon mumbai**
 
-  WalletBalance deployed to: 0xA3D1F0A6c7483489FAa10f3F9b1A5DA5AFa4144e
-  Reserver deployed to: 0x0Ef8df0021f78Cf9d627Ffe6CE4AcB5Db8721d14
-  FractionalizedNFT deployed to: 0x99396454915DaAE29833844871E86f42C11119e5
-  matic deployed to: 0xC85B57Cc472efb827d0AEeDd44832508F37Ed3aB
-  priceConsumerV3 deployed to: 0xF29A1983431f67c1B37AA3e4Bf2FE5711FdC09B6
-  Marketplace deployed at 0x1fEeC7a03Cf0C07E59012cCF42923E6A15Fe7DDA
+  - WalletBalance deployed to: 0xA3D1F0A6c7483489FAa10f3F9b1A5DA5AFa4144e
+  - Reserver deployed to: 0x0Ef8df0021f78Cf9d627Ffe6CE4AcB5Db8721d14
+  - FractionalizedNFT deployed to: 0x99396454915DaAE29833844871E86f42C11119e5
+  - matic deployed to: 0xC85B57Cc472efb827d0AEeDd44832508F37Ed3aB
+  - priceConsumerV3 deployed to: 0xF29A1983431f67c1B37AA3e4Bf2FE5711FdC09B6
+  - Marketplace deployed at 0x1fEeC7a03Cf0C07E59012cCF42923E6A15Fe7DDA
 
 - **Polygon zkEVM**
 
