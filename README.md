@@ -24,8 +24,7 @@
 Narpet, short for NFT Carpet, is a groundbreaking project that introduces fractionalized NFTs representing real-world assets. The platform facilitates the minting of NFTs backed by tangible assets, such as carpets, allowing users to fractionalize and trade ownership shares on the Narpet marketplace. This project leverages the power of blockchain technology and smart contracts to create a unique ecosystem. The off-chain proof of reserve process ensures the authenticity of the underlying assets.
 ***
 ## Architecture Diagram
-
-![image](https://github.com/meisamtaher/real-token/assets/99467399/53d9ef43-94ab-44a2-b3b4-31691da4f441)
+![Uploading msg6376040916-569563.jpg…]()
 
 ***
 ## Project Flow
